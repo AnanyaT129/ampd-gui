@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QLabel
 )
 
-from LeftLayout import LayoutLeft
+from view.LeftLayout import LayoutLeft
 
 # Subclass QMainWindow to customize your application's main window
 class MainWindow(QMainWindow):

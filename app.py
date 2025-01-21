@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication
 # Only needed for access to command line arguments
 import sys
 
-from MainWindow import MainWindow
+from view.MainWindow import MainWindow
 
 # You need one (and only one) QApplication instance per application.
 # Pass in sys.argv to allow command line arguments for your app.

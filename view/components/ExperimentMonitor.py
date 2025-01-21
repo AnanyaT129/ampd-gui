@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QColor, QPalette
 
-from components.Logs import Logs
+from view.components.Logs import Logs
 from model.DeviceStatus import DeviceStatus
 
 class ExperimentMonitor(QWidget):

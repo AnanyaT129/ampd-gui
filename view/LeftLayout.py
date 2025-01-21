@@ -4,8 +4,8 @@ from PyQt6.QtWidgets import (
     QLabel
 )
 
-from components.AmpdTitle import AmpdTitle
-from components.ExperimentMonitor import ExperimentMonitor
+from view.components.AmpdTitle import AmpdTitle
+from view.components.ExperimentMonitor import ExperimentMonitor
 
 class LayoutLeft(QVBoxLayout):
     def __init__(self):
