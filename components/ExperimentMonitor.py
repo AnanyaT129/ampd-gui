@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QColor, QPalette
 
+from components.Logs import Logs
 from model.DeviceStatus import DeviceStatus
 
 class ExperimentMonitor(QWidget):
@@ -39,10 +40,12 @@ class ExperimentMonitor(QWidget):
         self.startStopButton.clicked.connect(self.changeButtonStatus)
 
         # Experiment logs
+        self.logs = Logs(self)
 
         layout = QVBoxLayout()
         layout.addLayout(statusLayout)
         layout.addWidget(self.startStopButton)
+        layout.addWidget(self.logs)
         
         self.setLayout(layout)
   
@@ -54,6 +57,7 @@ class ExperimentMonitor(QWidget):
       if (self.status == DeviceStatus.READY_TO_START_EXPERIMENT):
           self.change_status(DeviceStatus.RUNNING_EXPERIMENT)
           self.startStopButton.setText("Stop Experiment")
+          self.logs.appendLog("Experiment Started")
       else:
           reply = QMessageBox.question(self, 'Confirmation',
                                      "Are you sure you want to quit?",
@@ -62,3 +66,6 @@ class ExperimentMonitor(QWidget):
           if reply == QMessageBox.StandardButton.Yes:
             self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
             self.startStopButton.setText("Start Experiment")
+            self.logs.appendLog("Experiment Stopped")
+    
+      self.logs.appendLog("Experiment Status: " + self.status.value)
