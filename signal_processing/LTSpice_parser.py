@@ -1,6 +1,11 @@
 # Justin Bahr
-# Capstone
+# Capstone C1
 
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+
+# function to stores transient voltage data from LTSpice in two arrays
 def parse_text(file_name):
     col_1 = []
     col_2 = []
@@ -12,13 +17,56 @@ def parse_text(file_name):
             col_2.append(float(parts[1]))
     return col_1, col_2
 
-# parse_text('')
-
 def main():
+
+    # reads the LTSpice vin data export
+    t_in,vin = parse_text('vin_jan31.txt')
+
+    # prompts the user to enter the LTSpice vout data export filename
     print('LTSpice Data Filename: ')
     filename = input()
-    x,y = parse_text(filename)
-    print(x)
-    print(y)
+    t,vout = parse_text(filename)
+
+    # calculates the fft of vin
+    vin_fft = np.fft.fft(vin)
+    vin_freq = np.fft.fftfreq(len(vin), (t_in[1] - t_in[0]) * math.pi)
+
+    # calculates the fft of vout
+    vout_fft = np.fft.fft(vout)
+    vout_freq = np.fft.fftfreq(len(vout), (t[1] - t[0]) * math.pi)
+
+    # z_1khz = 1500 *
+    # print(z_1khz)
+
+    # plots the transient input voltage
+    plt.subplot(2, 2, 1)
+    plt.plot(t_in, vin)
+    plt.title('Transient Input Voltage')
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Voltage (V)')
+
+    # plots the fft of vin
+    plt.subplot(2, 2, 3)
+    plt.plot(vin_freq, np.abs(vin_fft))
+    plt.title('FFT of Input Voltage')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('FFT Magnitude')
+    plt.xlim(-15000, 15000)
+
+    # plots the transient output voltage
+    plt.subplot(2,2,2)
+    plt.plot(t,vout)
+    plt.title('Transient Output Voltage')
+    plt.xlabel('Time (seconds)')
+    plt.ylabel('Voltage (V)')
+
+    # plots the fft of vout
+    plt.subplot(2,2,4)
+    plt.plot(vout_freq, np.abs(vout_fft))
+    plt.title('FFT of Output Voltage')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('FFT Magnitude')
+    plt.xlim(-15000,15000)
+    plt.show()
 
 main()
