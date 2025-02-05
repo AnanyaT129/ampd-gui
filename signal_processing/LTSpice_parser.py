@@ -35,8 +35,13 @@ def main():
     vout_fft = np.fft.fft(vout)
     vout_freq = np.fft.fftfreq(len(vout), (t[1] - t[0]) * math.pi)
 
-    # z_1khz = 1500 *
-    # print(z_1khz)
+    # calculates the impedance based on the fft peaks
+    z_1khz = 1500 * (abs(vin_fft[40]) + abs(vin_fft[925])) / (abs(vout_fft[40]) + abs(vout_fft[925]))
+    z_10khz = 1500 * (abs(vin_fft[4]) + abs(vin_fft[961])) / (abs(vout_fft[4]) + abs(vout_fft[961]))
+
+    # prints the impedances
+    print('Impedance at 1 kHz:', z_1khz)
+    print('Impedance at 10 kHz:', z_10khz)
 
     # plots the transient input voltage
     plt.subplot(2, 2, 1)
