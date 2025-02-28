@@ -1,15 +1,17 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
-    QVBoxLayout,
-    QLabel
+    QVBoxLayout
 )
 
 from view.components.AmpdTitle import AmpdTitle
-from view.components.ExperimentMonitor import ExperimentMonitor
+from view.components.experimentMonitor.ExperimentMonitor import ExperimentMonitor
+from view.components.experimentMonitor.ExperimentMonitorThreaded import ExperimentMonitorThreaded
 
 class LayoutLeft(QVBoxLayout):
-    def __init__(self):
+    def __init__(self, experiment):
         super().__init__()
 
+        self.experiment = experiment
+
         self.addWidget(AmpdTitle())
-        self.addWidget(ExperimentMonitor())
+        self.addWidget(ExperimentMonitorThreaded(experiment))

@@ -2,23 +2,24 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QMainWindow,
     QHBoxLayout,
-    QVBoxLayout,
     QWidget,
     QLabel
 )
 
 from view.LeftLayout import LayoutLeft
+from view.RightLayout import RightLayout
 
 # Subclass QMainWindow to customize your application's main window
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, experiment):
       super().__init__()
+      self.experiment = experiment
 
       self.setWindowTitle("Widgets App")
 
       layoutMain = QHBoxLayout()
-      layoutLeft = LayoutLeft()
-      layoutRight = QVBoxLayout()
+      layoutLeft = LayoutLeft(self.experiment)
+      layoutRight = RightLayout(self.experiment)
       
       layoutRight.addWidget(QLabel("Right label"))
 
