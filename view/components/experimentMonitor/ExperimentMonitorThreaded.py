@@ -11,6 +11,7 @@ from PyQt6.QtGui import QColor, QPalette
 
 from model.Experiment import Experiment
 from model.Server import Server
+from view.components.experimentMonitor.LengthInput import LengthInput
 from view.components.experimentMonitor.WorkerThread import WorkerThread
 from view.components.Logs import Logs
 from model.DeviceStatus import DeviceStatus
@@ -56,6 +57,8 @@ class ExperimentMonitorThreaded(QWidget):
         self.startStopExperimentButton.setStyleSheet("color: black;")
         self.startStopExperimentButton.clicked.connect(self.start_stop_experiment)
 
+        self.lengthInput = LengthInput("Length", initial_value=5)
+
         # logs widget
         self.logsWidget = Logs()
 
@@ -67,6 +70,7 @@ class ExperimentMonitorThreaded(QWidget):
         # Main layout
         layout = QVBoxLayout()
         layout.addLayout(statusLayout)
+        layout.addWidget(self.lengthInput)
         layout.addLayout(layoutStartStop)
         layout.addWidget(self.logsWidget)
 

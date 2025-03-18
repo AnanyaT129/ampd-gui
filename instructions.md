@@ -9,4 +9,4 @@
 - The project is set up in MVC (model view controller) design where
   - The view handles the UI display and elements
   - The model handles the data types and analysis of information for the application
-  - The controller interfaces between the two
+- Code to run on the raspberry pi is in the /client folder
