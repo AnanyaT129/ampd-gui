@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtWidgets import (
-    QVBoxLayout
+    QVBoxLayout,
+    QPushButton
 )
 import pyqtgraph as pg
 import numpy as np
@@ -26,6 +27,14 @@ class RightLayout(QVBoxLayout):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_graph)
         self.timer.start(100)  # Update every 100 ms
+
+        # data clear button
+        self.clearButton = QPushButton()
+        self.clearButton.setText("Clear Data")
+        self.clearButton.setStyleSheet("color: black;")
+        self.clearButton.clicked.connect(self.experiment.clear)
+
+        self.addWidget(self.clearButton)
 
     def update_graph(self):
         """
