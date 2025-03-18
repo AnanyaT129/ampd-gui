@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
 
 from view.components.AmpdTitle import AmpdTitle
 from view.components.experimentMonitor.ExperimentMonitor import ExperimentMonitor
-from view.components.experimentMonitor.ExperimentMonitorThreaded import ExperimentMonitorThreaded
+from view.components.experimentMonitor.ExperimentMonitor import ExperimentMonitor
 
 class LayoutLeft(QVBoxLayout):
     def __init__(self, experiment):
@@ -14,4 +14,4 @@ class LayoutLeft(QVBoxLayout):
         self.experiment = experiment
 
         self.addWidget(AmpdTitle())
-        self.addWidget(ExperimentMonitorThreaded(experiment))
+        self.addWidget(ExperimentMonitor(experiment))

@@ -12,7 +12,7 @@ from PyQt6.QtGui import QColor, QPalette
 from model.Experiment import Experiment
 from model.Server import Server
 from view.components.experimentMonitor.LengthInput import LengthInput
-from view.components.experimentMonitor.WorkerThread import WorkerThread
+from view.components.experimentMonitor.sockets.WorkerThread import WorkerThread
 from view.components.Logs import Logs
 from model.DeviceStatus import DeviceStatus
 

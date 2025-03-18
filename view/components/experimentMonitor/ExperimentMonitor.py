@@ -9,20 +9,18 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QColor, QPalette
 
-from model.Server import Server
 from view.components.Logs import Logs
 from model.DeviceStatus import DeviceStatus
+from view.components.experimentMonitor.ExperimentThread import ExperimentThread
 
 class ExperimentMonitor(QWidget):
-  def __init__(self):
+  def __init__(self, experiment):
     super().__init__()
     self.setAutoFillBackground(True)
+    self.experiment = experiment
 
     # Experiment logs
-    self.logs = Logs(self)
-
-    # Experiment server
-    self.server = Server(log_callback=self.logs.appendLog)
+    self.logsWidget = Logs(self)
 
     palette = self.palette()
     palette.setColor(QPalette.ColorRole.Window, QColor("White"))
@@ -32,19 +30,13 @@ class ExperimentMonitor(QWidget):
     labelConnect = QLabel("Device Status")
     labelConnect.setStyleSheet("color: black; font-weight: bold")
 
-    self.status = DeviceStatus.DISCONNECTED
+    self.status = DeviceStatus.READY_TO_START_EXPERIMENT
     self.labelStatus = QLabel(self.status.value)
     self.labelStatus.setStyleSheet("color: black;")
 
     statusLayout = QHBoxLayout()
     statusLayout.addWidget(labelConnect)
     statusLayout.addWidget(self.labelStatus)
-
-    # Start server experiment button
-    self.startStopServerButton = QPushButton(self)
-    self.startStopServerButton.setText("Start Server")
-    self.startStopServerButton.setStyleSheet("color: black;")
-    self.startStopServerButton.clicked.connect(self.start_stop_server)
 
     # Start data collection button
     self.startStopExperimentButton = QPushButton(self)
@@ -53,54 +45,43 @@ class ExperimentMonitor(QWidget):
     self.startStopExperimentButton.clicked.connect(self.start_stop_experiment)
 
     # Layout
-    layoutStartStop = QHBoxLayout()
-    layoutStartStop.addWidget(self.startStopServerButton)
-    layoutStartStop.addWidget(self.startStopExperimentButton)
     
     layout = QVBoxLayout()
     layout.addLayout(statusLayout)
-    layout.addLayout(layoutStartStop)
-    layout.addWidget(self.logs)
+    layout.addWidget(self.startStopExperimentButton)
+    layout.addWidget(self.logsWidget)
     
     self.setLayout(layout)
+  
+  def log(self, newLog):
+    self.experiment.addLog(newLog)
+    self.logsWidget.setText(self.experiment.logs)
   
   def change_status(self, new_status: DeviceStatus):
     self.status = new_status
     self.labelStatus.setText(self.status.value)
-    self.logs.appendLog("Experiment Status: " + self.status.value)
-
-  def start_stop_server(self):
-    if self.status == DeviceStatus.DISCONNECTED:
-       if self.server.start_server():
-          self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
-          self.startStopServerButton.setText("Stop Server")
-    elif self.status == DeviceStatus.RUNNING_EXPERIMENT:
-      self.logs.appendLog("Cannot stop server while experiment is running")
-    else:
-      stop = self.stopConfirmation()
-      if stop:
-        self.server.close_server()
-        self.change_status(DeviceStatus.DISCONNECTED)
-        self.startStopServerButton.setText("Start Server")
+    self.log("Experiment Status: " + self.status.value)
   
   def start_stop_experiment(self):
     if self.status == DeviceStatus.READY_TO_START_EXPERIMENT:
       self.change_status(DeviceStatus.RUNNING_EXPERIMENT)
       self.startStopExperimentButton.setText("Stop Experiment")
-      data = self.server.start_data_collection(5)
+
+      self.worker_thread = ExperimentThread(self.experiment, 'start_data_collection')
+      self.worker_thread.log_signal.connect(self.log)
+      self.worker_thread.status_signal.connect(self.change_status)
+      self.worker_thread.start()
 
       # after data collection is complete
-      self.logs.appendLog(f"Data collected: {data[:10]}")
-      self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
       self.startStopExperimentButton.setText("Start Experiment")
     elif self.status == DeviceStatus.RUNNING_EXPERIMENT:
       stop = self.stopConfirmation()
       if stop:
-        self.logs.appendLog("Experiment Stopped")
+        self.log("Experiment Stopped")
         self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
         self.startStopExperimentButton.setText("Start Experiment")
     else:
-      self.logs.appendLog("Cannot change experiment status in current state")
+      self.log("Cannot change experiment status in current state")
 
   def stopConfirmation(self):
     reply = QMessageBox.question(self, 'Confirmation',
