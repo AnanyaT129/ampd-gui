@@ -1,13 +1,15 @@
 import datetime
-import time
 from time import sleep
 import random
+
+from model.cameracapture import CameraCapture
 # from gpiozero import MCP3008
 
 class Experiment():
   def __init__(self):
     self.logs = []
     self.data = []
+    self.frames = []
     self.length = 5
   
   def addLog(self, newLog):
@@ -31,5 +33,12 @@ class Experiment():
   #     d = sig.value * 3300
   #     self.addDatapoint(d)
   
+  def camera_capture(self, length):
+    camera_capture = CameraCapture()
+
+    camera_capture.collect_data(length)
+
+    self.frames.append(camera_capture.data)
+
   def clear(self):
     self.data = []

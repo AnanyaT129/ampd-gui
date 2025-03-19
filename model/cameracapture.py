@@ -10,7 +10,7 @@ selector_list = [
     cv2.CAP_V4L2
 ]
 
-class CameraTest():
+class CameraCapture():
 	def __init__(self, width=3840, height=2160, view_window=[1280, 720], index=0, fps=30, focus=False, reStartTimes=5, videoCaptureAPI=0):
 		self.width = width
 		self.height = height

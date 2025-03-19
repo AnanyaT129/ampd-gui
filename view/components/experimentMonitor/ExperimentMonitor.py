@@ -67,10 +67,16 @@ class ExperimentMonitor(QWidget):
       self.change_status(DeviceStatus.RUNNING_EXPERIMENT)
       self.startStopExperimentButton.setText("Stop Experiment")
 
-      self.worker_thread = ExperimentThread(self.experiment, 'start_data_collection')
-      self.worker_thread.log_signal.connect(self.log)
-      self.worker_thread.status_signal.connect(self.change_status)
-      self.worker_thread.start()
+      self.impedance_thread = ExperimentThread(self.experiment, 'start_data_collection')
+      self.impedance_thread.log_signal.connect(self.log)
+      self.impedance_thread.status_signal.connect(self.change_status)
+
+      self.camera_thread = ExperimentThread(self.experiment, 'start_camera_capture')
+      self.camera_thread.log_signal.connect(self.log)
+      self.camera_thread.status_signal.connect(self.change_status)
+
+      self.impedance_thread.start()
+      self.camera_thread.start()
 
       # after data collection is complete
       self.startStopExperimentButton.setText("Start Experiment")
