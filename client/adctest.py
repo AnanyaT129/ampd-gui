@@ -11,13 +11,13 @@ length = 5
 end = time.time() + length
 
 while time.time() < end:
-	data.append(sig.value * 3300)
+	data.append(sig.value)
 
 x = np.linspace(0,length, num=len(data))
 
 print(len(data))
 
 plt.plot(x, data)
-plt.ylim(bottom=200,top=275)
+plt.ylim(bottom=0,top=1)
 plt.grid(True)
 plt.show()
