@@ -21,7 +21,7 @@ class RightLayout(QVBoxLayout):
         self.plot_widget.setTitle("Real-Time Data")
         self.plot_widget.setLabel("left", "Value")
         self.plot_widget.setLabel("bottom", "Time", units="s")
-        self.plot_widget.setYRange(0, 100)
+        self.plot_widget.setYRange(0, 3300)
 
         # Set up a timer to update the graph every 100 ms
         self.timer = QTimer(self)

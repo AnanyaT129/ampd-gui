@@ -1,7 +1,8 @@
 import time
 import cv2
+import numpy as np
 
-from camera import Camera
+from model.camera import Camera
 
 selector_list = [
     cv2.CAP_ANY,
@@ -73,8 +74,15 @@ class CameraCapture():
 		
 		self.close_camera()
 
-#camera = CameraTest()
+#camera = CameraCapture()
 #camera.collect_data(5)
 #print(len(camera.data))
+
+#midFrame = len(camera.data) // 2
+
+#cv2.imshow("Sample frame", np.array(camera.data[midFrame]))
+#cv2.waitKey(0)
+
+#cv2.destroyAllWindows()
 	
 	

@@ -2,7 +2,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 
 from model.DeviceStatus import DeviceStatus
 
-class ExperimentThread(QThread):
+class ExperimentThread():
     # Define signals to communicate with the main thread
     log_signal = pyqtSignal(str)
     status_signal = pyqtSignal(DeviceStatus)
@@ -19,7 +19,7 @@ class ExperimentThread(QThread):
             self.log_signal.emit(f"Data collected: {len(self.experiment.data)} measurements")
             self.status_signal.emit(DeviceStatus.READY_TO_START_EXPERIMENT)
         elif self.action == 'start_camera_capture':
-            self.start_camera_capture(self.length)
+            self.start_camera_capture()
     
     def start_camera_capture(self):
         self.experiment.camera_capture(self.length)
