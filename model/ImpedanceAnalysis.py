@@ -12,7 +12,7 @@ class ImpedanceAnalysis:
         self.chunk_avg()
         self.calc_imp()
         
-        return imp_list
+        return self.imp_list
 
     def chunk_avg(self):
         chunk_size = self.total_length // self.num_chunks

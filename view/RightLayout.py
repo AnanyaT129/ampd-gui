@@ -1,10 +1,14 @@
 from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtWidgets import (
     QVBoxLayout,
+    QHBoxLayout,
     QPushButton
 )
 import pyqtgraph as pg
 import numpy as np
+
+from model.ImpedanceAnalysis import ImpedanceAnalysis
+from model.CameraAnalysis import CameraAnalysis
 
 class RightLayout(QVBoxLayout):
     def __init__(self, experiment):
@@ -28,13 +32,22 @@ class RightLayout(QVBoxLayout):
         self.timer.timeout.connect(self.update_graph)
         self.timer.start(100)  # Update every 100 ms
 
-        # data clear button
-        self.clearButton = QPushButton()
-        self.clearButton.setText("Clear Data")
-        self.clearButton.setStyleSheet("color: black;")
-        self.clearButton.clicked.connect(self.experiment.clear)
+        # setup analysis parameters
+        self.impedanceAnalysisButton = QPushButton()
+        self.impedanceAnalysisButton.setText("Impedance Analysis")
+        self.impedanceAnalysisButton.setStyleSheet("color: black;")
+        self.impedanceAnalysisButton.clicked.connect(self.impedance_analysis)
 
-        self.addWidget(self.clearButton)
+        self.cameraAnalysisButton = QPushButton()
+        self.cameraAnalysisButton.setText("Camera Analysis")
+        self.cameraAnalysisButton.setStyleSheet("color: black;")
+        self.cameraAnalysisButton.clicked.connect(self.camera_analysis)
+
+        self.analysisLayout = QHBoxLayout()
+        self.analysisLayout.addWidget(self.impedanceAnalysisButton)
+        self.analysisLayout.addWidget(self.cameraAnalysisButton)
+
+        self.addLayout(self.analysisLayout)
 
     def update_graph(self):
         """
@@ -47,3 +60,11 @@ class RightLayout(QVBoxLayout):
         # Update the plot with new data
         self.plot_widget.clear()
         self.plot_widget.plot(x_data, y_data, pen='b', symbol='o', symbolBrush='r')
+    
+    def impedance_analysis(self):
+        impedance_analysis = ImpedanceAnalysis(self.experiment.data)
+        impedance_analysis.run()
+    
+    def camera_analysis(self):
+        camera_analysis = CameraAnalysis(self.experiment.frames)
+        camera_analysis.run()

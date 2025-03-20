@@ -20,8 +20,6 @@ class MainWindow(QMainWindow):
       layoutMain = QHBoxLayout()
       layoutLeft = LayoutLeft(self.experiment)
       layoutRight = RightLayout(self.experiment)
-      
-      layoutRight.addWidget(QLabel("Right label"))
 
       layoutMain.addLayout(layoutLeft)
       layoutMain.addLayout(layoutRight)

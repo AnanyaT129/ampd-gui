@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 from model.cameracapture import CameraCapture
-from gpiozero import MCP3008
+# from gpiozero import MCP3008
 
 class Experiment():
   def __init__(self):
@@ -19,8 +19,13 @@ class Experiment():
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     self.logs.append(time + " " + newLog)
   
-  def addDatapoint(self, datapoint):
-    self.data.append(datapoint)
+  def addDatapoint(self):
+    print("no pi")
+    # sig = MCP3008(0)
+    # d = sig.value * 3300
+    # self.data.append(d)
+    # return d
+    return 0
 
   def start_mock_data_collection(self, length):
     for i in range(length):
@@ -28,13 +33,10 @@ class Experiment():
       sleep(1)
   
   def start_data_collection(self, length=5):
-    sig = MCP3008(0)
-    
     end = time.time() + length
     
     while time.time() < end:
-      d = sig.value * 3300
-      self.addDatapoint(d)
+      self.addDatapoint()
   
   def camera_capture(self, length):
     camera_capture = CameraCapture()
@@ -44,16 +46,14 @@ class Experiment():
     self.frames = camera_capture.data
     
     if len(self.frames) == 0:
-      print("ALKSJKLAJSKALJSALKJSA NO FRAMES CAPTURED")
+      print("NO FRAMES CAPTURED")
       return
     
     midFrame = len(self.frames) // 2
-    
-    print("Shape: ", np.array(self.frames[midFrame]).shape)
-    print("Type: ", np.array(self.frames[midFrame]).dtype)
     
     cv2.imwrite("Sample_frame.png", np.array(self.frames[midFrame]))
     print(f"Saved frame {midFrame}")
 
   def clear(self):
     self.data = []
+    self.frames = []
