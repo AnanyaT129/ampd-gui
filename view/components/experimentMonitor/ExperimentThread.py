@@ -19,15 +19,12 @@ class ExperimentThread(QThread):
 
     def run(self):
         if self.action == 'start_data_collection':
-            end = time.time() + self.length
-
-            while time.time() < end:
-              d = self.experiment.addDatpoint()
-              self.realTimeAnalysis.addData(d)
-              threshold = self.realTimeAnalysis.data
-              
-              if threshold:
-                  self.enable_signal.emit(True)
+            self.experiment.start_data_collection(self.length)
+            self.realTimeAnalysis.addData(self.experiment.data)
+            threshold = self.realTimeAnalysis.checkThreshold()
+            
+            if threshold:
+                self.enable_signal.emit(True)
 
             self.log_signal.emit(f"Data collected: {len(self.experiment.data)} measurements")
             self.status_signal.emit(DeviceStatus.READY_TO_START_EXPERIMENT)

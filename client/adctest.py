@@ -27,7 +27,7 @@ class ImpedanceAnalysis:
         self.avg_list.append(statistics.mean(self.impedance_data[self.num_chunks-1:]))
 
     def calc_imp(self):
-        rf_vin = 5600*0.2
+        rf_vin = 5600*200
         for i in range(self.num_chunks):
             self.imp_list.append(rf_vin/self.avg_list[i])
 
@@ -67,6 +67,5 @@ axs[0].set_ylim(0, 3300)
 axs[1].plot(x_imp, imp_list, label="Impedance data", color="red")
 axs[1].set_title("Impedance data")
 axs[1].grid(True)
-axs[1].set_ylim(0, 3300)
 
 plt.show()
