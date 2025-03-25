@@ -1,12 +1,9 @@
 class RealTimeAnalysis:
   def __init__(self, data):
-    self.data = data
+    self.low = data[0]
+    self.high = data[1]
     self.threshold = 275 # experimentally determine a good value
     self.significant = 50 # can tweak this
-
-  def run(self):
-    if self.checkThreshold():
-      # activate camera
 
   def checkThreshold(self):
     num_sig = 0
@@ -17,6 +14,3 @@ class RealTimeAnalysis:
       return True
     else:
       return False
-  
-  def addData(self, data):
-    self.data.append(data)

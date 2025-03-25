@@ -12,7 +12,7 @@ selector_list = [
 ]
 
 class CameraCapture():
-	def __init__(self, width=3840, height=2160, view_window=[1280, 720], index=0, fps=30, focus=False, reStartTimes=5, videoCaptureAPI=0):
+	def __init__(self, fps, width=3840, height=2160, view_window=[1280, 720], index=0, focus=False, reStartTimes=5, videoCaptureAPI=0):
 		self.width = width
 		self.height = height
 		self.view_window = view_window

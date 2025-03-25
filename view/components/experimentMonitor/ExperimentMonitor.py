@@ -5,9 +5,11 @@ from PyQt6.QtWidgets import (
   QLabel,
   QWidget,
   QPushButton,
-  QMessageBox
+  QMessageBox,
+  QLineEdit,
+  QFormLayout
 )
-from PyQt6.QtGui import QColor, QPalette
+from PyQt6.QtGui import QColor, QPalette, QIntValidator
 
 from view.components.Logs import Logs
 from model.DeviceStatus import DeviceStatus
@@ -26,6 +28,34 @@ class ExperimentMonitor(QWidget):
     palette.setColor(QPalette.ColorRole.Window, QColor("White"))
     self.setPalette(palette)
 
+    # Experiment thread
+    self.impedance_thread = ExperimentThread(self.experiment, 'start_data_collection')
+
+    # Experiment title label
+    labelTitle = QLabel(f"Title: {self.experiment.savePath}")
+    labelTitle.setStyleSheet("color: black; font-weight: bold")
+
+    # Experiment Variables
+    self.variablesFormWidget = QFormLayout()
+
+    self.snapshotLengthWidget = QLineEdit()
+    self.snapshotLengthWidget.setValidator(QIntValidator())
+    self.snapshotLengthWidget.setText("1")
+    self.snapshotLengthWidget.textChanged.connect(self.snapshotLengthChanged)
+    self.variablesFormWidget.addRow("Snapshot length (s): ", self.snapshotLengthWidget)
+
+    self.snapshotsPerMinuteWidget = QLineEdit()
+    self.snapshotsPerMinuteWidget.setValidator(QIntValidator())
+    self.snapshotsPerMinuteWidget.setText("2")
+    self.snapshotsPerMinuteWidget.textChanged.connect(self.snapshotsPerMinuteChanged)
+    self.variablesFormWidget.addRow("Snapshots per minute: ", self.snapshotsPerMinuteWidget)
+
+    self.lengthWidget = QLineEdit()
+    self.lengthWidget.setValidator(QIntValidator())
+    self.lengthWidget.setText("5")
+    self.lengthWidget.textChanged.connect(self.lengthChanged)
+    self.variablesFormWidget.addRow("Experiment duration (min): ", self.lengthWidget)
+
     # Experiment status labels 
     labelConnect = QLabel("Device Status")
     labelConnect.setStyleSheet("color: black; font-weight: bold")
@@ -39,16 +69,27 @@ class ExperimentMonitor(QWidget):
     statusLayout.addWidget(self.labelStatus)
 
     # Start data collection buttons
-    self.startStopImpedanceButton = QPushButton(self)
-    self.startStopImpedanceButton.setText("Start Impedance Measurement")
-    self.startStopImpedanceButton.setStyleSheet("color: black;")
-    self.startStopImpedanceButton.clicked.connect(self.start_stop_impedance)
+    # self.startStopImpedanceButton = QPushButton(self)
+    # self.startStopImpedanceButton.setText("Start Impedance Measurement")
+    # self.startStopImpedanceButton.setStyleSheet("color: black;")
+    # self.startStopImpedanceButton.clicked.connect(self.start_stop_impedance)
 
     self.startStopCameraButton = QPushButton(self)
     self.startStopCameraButton.setText("Start Camera Capture")
     self.startStopCameraButton.setStyleSheet("color: black; background-color: red")
     self.startStopCameraButton.clicked.connect(self.start_stop_camera)
     self.startStopCameraButton.setEnabled(False)
+
+    self.startExperimentButton = QPushButton(self)
+    self.startExperimentButton.setText("Start Experiment")
+    self.startExperimentButton.setStyleSheet("color: black;")
+    self.startExperimentButton.clicked.connect(self.start_experiment)
+
+    self.stopExperimentButton = QPushButton(self)
+    self.stopExperimentButton.setText("Stop Experiment")
+    self.stopExperimentButton.setEnabled(False)
+    self.stopExperimentButton.setStyleSheet("color: black; background-color: grey")
+    self.stopExperimentButton.clicked.connect(self.stop_experiment)
 
     # data clear button
     self.clearButton = QPushButton()
@@ -58,13 +99,16 @@ class ExperimentMonitor(QWidget):
 
     # data collection layout
     self.dataCollectionLayout = QHBoxLayout()
-    self.dataCollectionLayout.addWidget(self.startStopImpedanceButton)
-    self.dataCollectionLayout.addWidget(self.startStopCameraButton)
+    self.dataCollectionLayout.addWidget(self.startExperimentButton)
+    self.dataCollectionLayout.addWidget(self.stopExperimentButton)
 
     # Layout
     layout = QVBoxLayout()
+    layout.addWidget(labelTitle)
+    layout.addLayout(self.variablesFormWidget)
     layout.addLayout(statusLayout)
     layout.addLayout(self.dataCollectionLayout)
+    layout.addWidget(self.startStopCameraButton)
     layout.addWidget(self.clearButton)
     layout.addWidget(self.logsWidget)
     
@@ -73,6 +117,24 @@ class ExperimentMonitor(QWidget):
   def log(self, newLog):
     self.experiment.addLog(newLog)
     self.logsWidget.setText(self.experiment.logs)
+  
+  def experimentVariableChanged(self, name, text):
+    self.log(f"{name} changed to: {text}")
+
+  def snapshotLengthChanged(self, text):
+    if (text != ""):
+      self.experiment.snapshotLength = int(text)
+      self.experimentVariableChanged("Snapshot length", self.experiment.snapshotLength)
+  
+  def snapshotsPerMinuteChanged(self, text):
+    if (text != ""):
+      self.experiment.snapshotsPerMinute = int(text)
+      self.experimentVariableChanged("Snapshots per minute", self.experiment.snapshotsPerMinute)
+  
+  def lengthChanged(self, text):
+    if (text != ""):
+      self.experiment.length = int(text)
+      self.experimentVariableChanged("Length", self.experiment.length)
   
   def change_status(self, new_status: DeviceStatus):
     self.status = new_status
@@ -86,6 +148,41 @@ class ExperimentMonitor(QWidget):
     else:
       self.startStopCameraButton.setEnabled(False)
       self.startStopCameraButton.setStyleSheet("color: black; background-color: red")
+
+  def start_experiment(self):
+    if self.status == DeviceStatus.READY_TO_START_EXPERIMENT:
+      self.change_status(DeviceStatus.RUNNING_EXPERIMENT)
+
+      # disable start button, enable stop button
+      self.startExperimentButton.setStyleSheet("color: black; background-color: grey")
+      self.startExperimentButton.setEnabled(False)
+      self.stopExperimentButton.setStyleSheet("color: black;")
+      self.stopExperimentButton.setEnabled(True)
+
+      self.impedance_thread.log_signal.connect(self.log)
+      self.impedance_thread.status_signal.connect(self.change_status)
+      self.impedance_thread.enable_signal.connect(self.enable_camera_capture)
+
+      self.impedance_thread.start()
+    else:
+      self.log("Cannot change experiment status in current state")
+  
+  def stop_experiment(self):
+    if self.status == DeviceStatus.RUNNING_EXPERIMENT:
+      stop = self.stopConfirmation()
+      if stop:
+        self.log("Experiment Stopped")
+        self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
+
+        self.impedance_thread.quit()
+
+        # disable start button, enable stop button
+        self.startExperimentButton.setStyleSheet("color: black;")
+        self.startExperimentButton.setEnabled(True)
+        self.stopExperimentButton.setStyleSheet("color: black; background-color: grey")
+        self.stopExperimentButton.setEnabled(False)
+    else:
+      self.log("Cannot change experiment status in current state")
   
   def start_stop_impedance(self):
     if self.status == DeviceStatus.READY_TO_START_EXPERIMENT:

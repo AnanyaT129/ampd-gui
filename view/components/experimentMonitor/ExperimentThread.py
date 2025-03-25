@@ -15,18 +15,28 @@ class ExperimentThread(QThread):
         self.experiment = experiment
         self.action = action  # The action to be performed (e.g., 'start_data_collection')
         self.length = length
-        self.realTimeAnalysis = RealTimeAnalysis()
 
     def run(self):
         if self.action == 'start_data_collection':
-            self.experiment.start_data_collection(self.length)
-            self.realTimeAnalysis.addData(self.experiment.data)
-            threshold = self.realTimeAnalysis.checkThreshold()
-            
-            if threshold:
-                self.enable_signal.emit(True)
+            wait = 60/self.experiment.snapshotsPerMinute
+            iterations = self.experiment.snapshotsPerMinute * self.experiment.length
 
-            self.log_signal.emit(f"Data collected: {len(self.experiment.data)} measurements")
+            for i in range(iterations):
+                self.log_signal.emit(f"Collecting data for snapshot {i} of {iterations}")
+                self.experiment.start_data_collection(self.length)
+                self.realTimeAnalysis = RealTimeAnalysis(self.experiment.data[-1])
+
+                threshold = self.realTimeAnalysis.checkThreshold()
+                
+                if threshold:
+                    self.enable_signal.emit(True)
+                    self.log_signal.emit("Microplastic threshold passed - camera snapshot activated")
+                
+                time.sleep(wait)
+
+                self.log_signal.emit(f"Data collected: {len(self.experiment.data)} measurements")
+            
+            self.experiment.write()
             self.status_signal.emit(DeviceStatus.READY_TO_START_EXPERIMENT)
         elif self.action == 'start_camera_capture':
             self.start_camera_capture()
