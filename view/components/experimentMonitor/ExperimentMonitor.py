@@ -142,7 +142,7 @@ class ExperimentMonitor(QWidget):
       self.startStopCameraButton.setEnabled(True)
       self.startStopCameraButton.setStyleSheet("color: black; background-color: green")
 
-      # self.start_camera()
+      self.start_camera()
     else:
       self.startStopCameraButton.setEnabled(False)
       self.startStopCameraButton.setStyleSheet("color: black; background-color: red")

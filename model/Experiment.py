@@ -93,14 +93,15 @@ class Experiment():
 
     camera_capture.collect_data(length)
 
-    self.frames = camera_capture.data
+    self.frames.append(camera_capture.data)
     
-    if len(self.frames) == 0:
+    if len(self.frames) == 0 or (len(self.frames) != 0 and len(self.frames[-1]) == 0):
       print("NO FRAMES CAPTURED")
       return
     
-    for i in range(len(self.frames)):
-      cv2.imwrite(f"{self.savePath}/frames/{i}/{len(self.frames)}.png", np.array(self.frames[i]))
+    most_recent_frames = self.frames[-1]
+    for i in range(len(most_recent_frames)):
+      cv2.imwrite(f"{self.savePath}/frames/{len(self.frames)}/{i}.png", np.array(most_recent_frames))
 
     print(f"Saved frames to {self.savePath}/frames")
 
