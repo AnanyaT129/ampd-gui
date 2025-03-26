@@ -20,16 +20,28 @@ class ServerMock:
 
     def start_server(self, length=5):
         """Start the server and listen for a message from the client"""
-        self.log(f"Server listening on {self.server_ip}:{self.server_port}...")
+        self.log("Mock server listening...")
+        # self.log(f"Server listening on {self.server_ip}:{self.server_port}...")
 
-        sleep(5)
+        sleep(1)
 
-        return True
+         # Simulate receiving "Hello from pi"
+        received_message = "Hello from pi"
+        self.log(f"Received message from {self.client_address}: {received_message}")
+
+        if received_message.startswith("Hello from pi"):
+            # Simulate sending the length back to the client
+            self.log(f"Sent response: length: {length}")
+            self.server_running = True
+            return True
+        else:
+            self.log("Error: No introductory message received")
+            return False
 
     def start_data_collection(self, length):
         """Start collecting data from the client"""
         if not self.server_socket:
-            self.log("Server not started yet.")
+            self.log("Mock server not started yet.")
             return []
 
         self.log("Signal sent to start data collection.")
@@ -43,6 +55,6 @@ class ServerMock:
         return self.datapoints
 
     def close_server(self):
-        """Close the server"""
-        self.log("Server closed.")
+        """Close the mock server"""
+        self.log("Mock server closed.")
         self.server_socket = None

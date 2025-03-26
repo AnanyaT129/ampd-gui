@@ -108,8 +108,8 @@ class Experiment():
       print("NO FRAMES CAPTURED")
       return
     
-    for i in len(range(self.frames)):
-      cv2.imwrite(f"{self.savePath}/frames/{i}.png", np.array(self.frames[i]))
+    for i in range(len(self.frames)):
+      cv2.imwrite(f"{self.savePath}/frames/{i}/{len(self.frames)}.png", np.array(self.frames[i]))
 
     print(f"Saved frames to {self.savePath}/frames")
 
@@ -123,8 +123,13 @@ class Experiment():
         "low": [],
         "high": []
       }}
-      for i in len(range(self.data)):
+      for i in range(len(self.data)):
         dataDict["impedanceData"]["low"].append(self.data[i][0])
         dataDict["impedanceData"]["high"].append(self.data[i][1])
     
     json.dump(dataDict, f, ensure_ascii=False)
+
+def read_json(file_path):
+    with open(file_path, "r") as f:
+        data = json.load(f)
+    return data
