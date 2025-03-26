@@ -1,4 +1,5 @@
 import statistics
+import random
 
 class ImpedanceAnalysis:
     def __init__(self, impedance_data, numChunks = 10):
@@ -25,5 +26,15 @@ class ImpedanceAnalysis:
         for i in range(self.num_chunks):
             self.imp_list.append(rf_vin/self.avg_list[i])
 
+def generateRandomVal(base):
+    noise = random.random() * 40
+    if random.random() < 0.5:
+        return base - noise
+    else:
+        return base + noise
 
+data = [generateRandomVal(200) for i in range(5000)] + [generateRandomVal(300) for i in range(5000)]
+print(len(data))
 
+ia = ImpedanceAnalysis(data, 10)
+ia.run()
