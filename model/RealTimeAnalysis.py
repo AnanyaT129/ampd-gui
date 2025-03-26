@@ -22,6 +22,7 @@ class RealTimeAnalysis:
   
   def checkThresholdMock(self):
     r = random.random()
-    location = random.randint(0, len(self.low))
-    self.point = (location, self.threshold)
-    return r > 0.5
+    location = random.randint(1, len(self.low))
+    self.point = (location, self.low_threshold)
+    #return r > 0.5
+    return True

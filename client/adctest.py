@@ -3,6 +3,7 @@ import time
 from time import sleep
 import matplotlib.pyplot as plt
 import numpy as np
+import RPi.GPIO as GPIO
 
 import statistics
 
@@ -32,6 +33,7 @@ class ImpedanceAnalysis:
             self.imp_list.append(rf_vin/self.avg_list[i])
 
 sig = MCP3008(0)
+GPIO.setmode(GPIO.BCM)
 onOffPin = 25
 tds = LED(onOffPin)
 

@@ -22,7 +22,7 @@ class ExperimentThread(QThread):
 
             for i in range(iterations):
                 self.log_signal.emit(f"Collecting data for snapshot {i + 1} of {iterations}")
-                self.experiment.start_data_collection(self.length)
+                self.experiment.start_data_collection(self.experiment.snapshotLength)
 
                 threshold = self.experiment.checkThreshold()
                 
@@ -32,7 +32,11 @@ class ExperimentThread(QThread):
                 else:
                     self.enable_signal.emit(False)
                 
+                print(f"waiting for {wait} seconds")
+                
                 time.sleep(wait)
+                
+                print("done waiting")
 
                 self.log_signal.emit(f"Data collected: {len(self.experiment.data[-1][0])} low measurements and {len(self.experiment.data[-1][1])} high measurements")
             
@@ -41,5 +45,5 @@ class ExperimentThread(QThread):
             self.start_camera_capture()
     
     def start_camera_capture(self):
-        self.experiment.camera_capture(self.length)
+        self.experiment.camera_capture(self.experiment.snapshotLength, len(self.experiment.data))
         self.log_signal.emit(f"Data collected: {len(self.experiment.frames)} frames")

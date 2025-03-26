@@ -196,7 +196,7 @@ class ExperimentMonitor(QWidget):
 
       self.camera_thread = ExperimentThread(self.experiment, 'start_camera_capture')
       self.camera_thread.log_signal.connect(self.log)
-      self.camera_thread.status_signal.connect(self.change_status)
+      # self.camera_thread.status_signal.connect(self.change_status)
       self.camera_thread.start()
     else:
       self.log("Cannot change experiment status in current state")

@@ -10,7 +10,8 @@ import os
 
 from model.RealTimeAnalysis import RealTimeAnalysis
 from model.cameracapture import CameraCapture
-from gpiozero import MCP3008
+from gpiozero import MCP3008, LED
+# import RPi.GPIO as GPIO
 
 class Experiment():
   def __init__(self):
@@ -27,10 +28,13 @@ class Experiment():
 
     self.savePath = f"{self.date}_ampd_experiment_data"
     
-    onOffPinLow = 24
-    onOffPinHigh = 25
-    self.tdsLow = LED(onOffPinLow)
-    self.tdsHigh = LED(onOffPinHigh)
+    self.onOffPinLow = 23
+    self.onOffPinHigh = 25
+    
+    self.tdsLow = LED(self.onOffPinLow)
+    self.tdsHigh = LED(self.onOffPinHigh)
+    
+    os.makedirs(self.savePath, exist_ok=True)
 
   def addLog(self, newLog):
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -43,14 +47,13 @@ class Experiment():
       # get data from low pin
       sig = MCP3008(0)
       d = sig.value * 3300
-      self.data.append(d)
     
     else:
       # get data from high pin
       sig = MCP3008(1)
       d = sig.value * 3300
-      self.data.append(d)
     
+    # print(d)
     return d
     # return 0
 
@@ -72,36 +75,61 @@ class Experiment():
     dLow = []
     dHigh = []
     
-    end = time.time() + length
+    print(length)
     
-    # get data from low pin
-    self.tdsLow.on()
-    while time.time() < end:
-      dLow.append(self.addDatapoint(False))
-    self.tdsLow.off()
-    
-    # get data from high pin
-    self.tdsHigh.on()
-    while time.time() < end:
-      dHigh.append(self.addDatapoint(True))
-    self.tdsHigh.off()
-    
-    self.data.append((dLow, dHigh))
+    try:
+      # get data from low pin
+      print("low")
+      self.tdsLow.on()
+      sleep(1)
+      
+      end = time.time() + length
+      print(end)
+      while time.time() < end:
+        print(time.time())
+        print(len(dLow))
+        dLow.append(self.addDatapoint(False))
+        sleep(0.1)
+      self.tdsLow.off()
+      print("Done data collection")
+      sleep(1)
+      
+      # get data from high pin
+      print("high")
+      
+      self.tdsHigh.on()
+      sleep(1)
+      end = time.time() + length
+      while time.time() < end:
+        print(time.time())
+        print(len(dHigh))
+        dHigh.append(self.addDatapoint(True))
+        sleep(0.1)
+      sleep(1)
+      self.tdsHigh.off()
+    except Exception as e:
+      print(e)
+    finally:
+      print("Low: ", dLow, "High: ", dHigh)
+      self.data.append((dLow, dHigh))
   
-  def camera_capture(self, length):
+  def camera_capture(self, length, snapshot):
     camera_capture = CameraCapture(self.cameraFps)
 
     camera_capture.collect_data(length)
 
-    self.frames.append(camera_capture.data)
+    self.frames = camera_capture.data
+    
+    os.makedirs(f"{self.savePath}/frames/snapshot_{snapshot}", exist_ok=True)
     
     if len(self.frames) == 0 or (len(self.frames) != 0 and len(self.frames[-1]) == 0):
       print("NO FRAMES CAPTURED")
       return
     
-    most_recent_frames = self.frames[-1]
-    for i in range(len(most_recent_frames)):
-      cv2.imwrite(f"{self.savePath}/frames/{len(self.frames)}/{i}.png", np.array(most_recent_frames))
+    print(np.array(self.frames).shape)
+    for i in range(len(self.frames)):
+      r = cv2.imwrite(f"{self.savePath}/frames/snapshot_{snapshot}/{i}_of_{len(self.frames)}.png", np.array(self.frames[i], dtype=np.uint8))
+      print(r)
 
     print(f"Saved frames to {self.savePath}/frames")
 
@@ -110,7 +138,6 @@ class Experiment():
     self.frames = []
 
   def write(self):
-    os.makedirs(self.savePath, exist_ok=True)
     filename = Path(f'{self.savePath}/data.json')
     filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
 
@@ -140,11 +167,12 @@ class Experiment():
     if self.data != []:
       return self.data[-1]
     else:
-      return [[],[]]
+      return ([],[])
   
   def checkThreshold(self):
+    print("checking threshold!")
     realTimeAnalysis = RealTimeAnalysis(self.getLatestData())
-    threshold = realTimeAnalysis.checkThreshold()
+    threshold = realTimeAnalysis.checkThresholdMock()
     
     self.thresholds.append({threshold: realTimeAnalysis.point})
 
