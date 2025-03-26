@@ -1,6 +1,8 @@
 # Installation and Setup
 1. Ensure Python3 is installed
 2. Install PyQt6 with `pip3 install pyqt6`
+3. Install pyqtgraph with `pip3 install pyqtgraph`
+4. Install cv2 with `pip install opencv-python`
 
 # Running the application
 1. Run `python3 app.py` from the root folder of the project
