@@ -2,12 +2,11 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 import time
 
 from model.DeviceStatus import DeviceStatus
-from model.RealTimeAnalysis import RealTimeAnalysis
 
 class ExperimentThread(QThread):
     # Define signals to communicate with the main thread
     log_signal = pyqtSignal(str)
-    status_signal = pyqtSignal(DeviceStatus)
+    stop_experiment_signal = pyqtSignal(bool)
     enable_signal = pyqtSignal(bool)
 
     def __init__(self, experiment, action, length=5, *args, **kwargs):
@@ -22,26 +21,25 @@ class ExperimentThread(QThread):
             iterations = self.experiment.snapshotsPerMinute * self.experiment.length
 
             for i in range(iterations):
-                self.log_signal.emit(f"Collecting data for snapshot {i} of {iterations}")
+                self.log_signal.emit(f"Collecting data for snapshot {i + 1} of {iterations}")
                 self.experiment.start_data_collection(self.length)
-                self.realTimeAnalysis = RealTimeAnalysis(self.experiment.data[-1])
 
-                threshold = self.realTimeAnalysis.checkThreshold()
+                threshold = self.experiment.checkThreshold()
                 
                 if threshold:
                     self.enable_signal.emit(True)
                     self.log_signal.emit("Microplastic threshold passed - camera snapshot activated")
+                else:
+                    self.enable_signal.emit(False)
                 
                 time.sleep(wait)
 
-                self.log_signal.emit(f"Data collected: {len(self.experiment.data)} measurements")
+                self.log_signal.emit(f"Data collected: {len(self.experiment.data[-1][0])} low measurements and {len(self.experiment.data[-1][1])} high measurements")
             
-            self.experiment.write()
-            self.status_signal.emit(DeviceStatus.READY_TO_START_EXPERIMENT)
+            self.stop_experiment_signal.emit(True)
         elif self.action == 'start_camera_capture':
             self.start_camera_capture()
     
     def start_camera_capture(self):
         self.experiment.camera_capture(self.length)
         self.log_signal.emit(f"Data collected: {len(self.experiment.frames)} frames")
-        self.status_signal.emit(DeviceStatus.READY_TO_START_EXPERIMENT)

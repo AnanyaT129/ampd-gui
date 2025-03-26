@@ -11,6 +11,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QColor, QPalette, QIntValidator
 
+import time
+
 from view.components.Logs import Logs
 from model.DeviceStatus import DeviceStatus
 from view.components.experimentMonitor.ExperimentThread import ExperimentThread
@@ -68,16 +70,10 @@ class ExperimentMonitor(QWidget):
     statusLayout.addWidget(labelConnect)
     statusLayout.addWidget(self.labelStatus)
 
-    # Start data collection buttons
-    # self.startStopImpedanceButton = QPushButton(self)
-    # self.startStopImpedanceButton.setText("Start Impedance Measurement")
-    # self.startStopImpedanceButton.setStyleSheet("color: black;")
-    # self.startStopImpedanceButton.clicked.connect(self.start_stop_impedance)
-
     self.startStopCameraButton = QPushButton(self)
     self.startStopCameraButton.setText("Start Camera Capture")
     self.startStopCameraButton.setStyleSheet("color: black; background-color: red")
-    self.startStopCameraButton.clicked.connect(self.start_stop_camera)
+    self.startStopCameraButton.clicked.connect(self.start_camera)
     self.startStopCameraButton.setEnabled(False)
 
     self.startExperimentButton = QPushButton(self)
@@ -145,6 +141,8 @@ class ExperimentMonitor(QWidget):
     if enable:
       self.startStopCameraButton.setEnabled(True)
       self.startStopCameraButton.setStyleSheet("color: black; background-color: green")
+
+      # self.start_camera()
     else:
       self.startStopCameraButton.setEnabled(False)
       self.startStopCameraButton.setStyleSheet("color: black; background-color: red")
@@ -160,21 +158,28 @@ class ExperimentMonitor(QWidget):
       self.stopExperimentButton.setEnabled(True)
 
       self.impedance_thread.log_signal.connect(self.log)
-      self.impedance_thread.status_signal.connect(self.change_status)
+      self.impedance_thread.stop_experiment_signal.connect(self.stop_experiment_from_thread)
       self.impedance_thread.enable_signal.connect(self.enable_camera_capture)
 
       self.impedance_thread.start()
     else:
       self.log("Cannot change experiment status in current state")
   
-  def stop_experiment(self):
+  def stop_experiment_from_thread(self):
+    self.stop_experiment(confirmationOverride = True)
+
+  def stop_experiment(self, confirmationOverride = False):
     if self.status == DeviceStatus.RUNNING_EXPERIMENT:
-      stop = self.stopConfirmation()
-      if stop:
+      if confirmationOverride or self.stopConfirmation():
         self.log("Experiment Stopped")
         self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
 
         self.impedance_thread.quit()
+
+        time.sleep(0.5)
+
+        self.log(f"Experiment complete. Writing data to {self.experiment.savePath}")
+        self.experiment.write()
 
         # disable start button, enable stop button
         self.startExperimentButton.setStyleSheet("color: black;")
@@ -184,47 +189,15 @@ class ExperimentMonitor(QWidget):
     else:
       self.log("Cannot change experiment status in current state")
   
-  def start_stop_impedance(self):
-    if self.status == DeviceStatus.READY_TO_START_EXPERIMENT:
+  def start_camera(self):
+    if self.status == DeviceStatus.RUNNING_EXPERIMENT:
       self.change_status(DeviceStatus.RUNNING_EXPERIMENT)
-      self.startStopImpedanceButton.setText("Stop Impedance Measrement")
-
-      self.impedance_thread = ExperimentThread(self.experiment, 'start_data_collection')
-      self.impedance_thread.log_signal.connect(self.log)
-      self.impedance_thread.status_signal.connect(self.change_status)
-      self.impedance_thread.enable_signal.connect(self.enable_camera_capture)
-
-      self.impedance_thread.start()
-
-      # after data collection is complete
-      self.startStopImpedanceButton.setText("Start Impedance Measurement")
-    elif self.status == DeviceStatus.RUNNING_EXPERIMENT:
-      stop = self.stopConfirmation()
-      if stop:
-        self.log("Impedance Measurement Stopped")
-        self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
-        self.startStopImpedanceButton.setText("Start Impedance Measurement")
-    else:
-      self.log("Cannot change experiment status in current state")
-  
-  def start_stop_camera(self):
-    if self.status == DeviceStatus.READY_TO_START_EXPERIMENT:
-      self.change_status(DeviceStatus.RUNNING_EXPERIMENT)
-      self.startStopImpedanceButton.setText("Stop Camera Capture")
+      self.startStopCameraButton.setText("Stop Camera Capture")
 
       self.camera_thread = ExperimentThread(self.experiment, 'start_camera_capture')
       self.camera_thread.log_signal.connect(self.log)
       self.camera_thread.status_signal.connect(self.change_status)
       self.camera_thread.start()
-
-      # after data collection is complete
-      self.startStopImpedanceButton.setText("Start Camera Capture")
-    elif self.status == DeviceStatus.RUNNING_EXPERIMENT:
-      stop = self.stopConfirmation()
-      if stop:
-        self.log("Camera Capture Stopped")
-        self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
-        self.startStopImpedanceButton.setText("Start Camera Capture")
     else:
       self.log("Cannot change experiment status in current state")
 
