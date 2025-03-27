@@ -24,5 +24,5 @@ class RealTimeAnalysis:
     r = random.random()
     location = random.randint(1, len(self.low))
     self.point = (location, self.low_threshold)
-    #return r > 0.5
-    return True
+    return r > 0.5
+    #return True
