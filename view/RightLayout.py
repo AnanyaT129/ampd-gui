@@ -2,10 +2,13 @@ from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
-    QPushButton
+    QPushButton,
+    QFileDialog,
 )
 import pyqtgraph as pg
 import numpy as np
+import os
+from model.Parser import Parser
 
 # from model.ImpedanceAnalysis import ImpedanceAnalysis
 # from model.CameraAnalysis import CameraAnalysis
@@ -79,11 +82,36 @@ class RightLayout(QVBoxLayout):
             self.plot_widget.addItem(threshold_label)
     
     def impedance_analysis(self):
-        print("Not implemented")
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)  # Allow selecting only existing files
+        file_dialog.setNameFilter("JSON Files (*.json)")
+        if file_dialog.exec():  # If the dialog is accepted
+            file_paths = file_dialog.selectedFiles()[0]
+        parser = Parser()
+        parser.parse_json(file_paths)
+        '''
+        print(f"Date: {parser.date}")
+        print("Metadata:")
+        print(f"  Snapshot Length: {parser.snapshot_length}")
+        print(f"  Snapshots Per Minute: {parser.snapshots_per_minute}")
+        print(f"  Experiment Duration: {parser.experiment_duration}")
+        print(f"  Camera FPS: {parser.camera_fps}")
+        
+        print("Impedance Data:")
+        print(f"  Low Impedance: {parser.low_impedance}")
+        print(f"  High Impedance: {parser.high_impedance}")
+        '''
+        
         # impedance_analysis = ImpedanceAnalysis(self.experiment.data)
         # impedance_analysis.run()
     
     def camera_analysis(self):
-        print("not implemented")
+        folder_dialog = QFileDialog()
+        folder_dialog.setFileMode(QFileDialog.FileMode.Directory)  # Allow selecting directories only
+        folder_dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)  # Ensure only directories are shown
+        if folder_dialog.exec():  # If the dialog is accepted
+            folder_path = folder_dialog.selectedFiles()[0]
+        png_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.lower().endswith(".png")]
+        # print(png_files)
         # camera_analysis = CameraAnalysis(self.experiment.frames)
         # camera_analysis.run()

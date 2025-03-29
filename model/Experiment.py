@@ -24,13 +24,14 @@ class Experiment():
     self.length = 5
     self.cameraFps = 30
 
-    self.date = datetime.datetime.now().strftime('%Y%m%d_%H:%M')
+    self.date = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
     self.savePath = f"{self.date}_ampd_experiment_data"
     
     self.onOffPinLow = 23
     self.onOffPinHigh = 25
     
+    #comment out if you want to run without pins connected
     self.tdsLow = LED(self.onOffPinLow)
     self.tdsHigh = LED(self.onOffPinHigh)
     
