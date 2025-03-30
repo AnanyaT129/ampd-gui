@@ -8,21 +8,18 @@ import json
 from pathlib import Path
 import os
 
-from model.RealTimeAnalysis import RealTimeAnalysis
 from model.cameracapture import CameraCapture
-from gpiozero import MCP3008, LED
-# import RPi.GPIO as GPIO
+# from gpiozero import MCP3008, LED
 
 class Experiment():
   def __init__(self):
     self.logs = []
     self.data = []
     self.frames = []
-    self.thresholds = []
-    self.snapshotLength = 1
-    self.snapshotsPerMinute = 2
+    self.cameraLength = 1
     self.length = 5
     self.cameraFps = 30
+    self.enable = [True, True]
 
     self.date = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
@@ -32,8 +29,8 @@ class Experiment():
     self.onOffPinHigh = 25
     
     #comment out if you want to run without pins connected
-    self.tdsLow = LED(self.onOffPinLow)
-    self.tdsHigh = LED(self.onOffPinHigh)
+    # self.tdsLow = LED(self.onOffPinLow)
+    # self.tdsHigh = LED(self.onOffPinHigh)
     
     os.makedirs(self.savePath, exist_ok=True)
 
@@ -42,7 +39,7 @@ class Experiment():
     self.logs.append(time + " " + newLog)
   
   def addDatapoint(self, lowHigh: bool):
-    # print("no pi")
+    print("no pi")
     
     if not lowHigh:
       # get data from low pin
@@ -58,25 +55,46 @@ class Experiment():
     return d
     # return 0
 
-  def start_mock_data_collection(self, length):
+  def start_mock_data_collection(self):
     dLow = []
     dHigh = []
 
-    for i in range(length * 10):
+    for i in range(self.length * 10):
       dLow.append(random.randint(0, 3000))
       sleep(0.1)
     
-    for i in range(length * 10):
+    for i in range(self.length * 10):
       dHigh.append(random.randint(0, 3000))
       sleep(0.1)
     
     self.data.append((dLow, dHigh))
   
-  def start_data_collection(self, length):
+  def mock_camera_capture(self):
+    mockFrames = []
+
+    for i in range(self.cameraFps * self.cameraLength):
+      mockFrames.append(np.random.randint(0, 256, size=(3840, 2160, 3), dtype=np.uint8))
+    
+    self.frames = mockFrames
+
+    os.makedirs(f"{self.savePath}/frames", exist_ok=True)
+    
+    if len(self.frames) == 0 or (len(self.frames) != 0 and len(self.frames[-1]) == 0):
+      print("NO FRAMES CAPTURED")
+      return
+    
+    print(np.array(self.frames).shape)
+    for i in range(len(self.frames)):
+      r = cv2.imwrite(f"{self.savePath}/frames/{i}_of_{len(self.frames)}.png", np.array(self.frames[i], dtype=np.uint8))
+      print(r)
+
+    print(f"Saved frames to {self.savePath}/frames")
+  
+  def start_data_collection(self):
     dLow = []
     dHigh = []
     
-    print(length)
+    print(self.length)
     
     try:
       # get data from low pin
@@ -84,7 +102,7 @@ class Experiment():
       self.tdsLow.on()
       sleep(1)
       
-      end = time.time() + length
+      end = time.time() + self.length
       print(end)
       while time.time() < end:
         print(time.time())
@@ -100,7 +118,7 @@ class Experiment():
       
       self.tdsHigh.on()
       sleep(1)
-      end = time.time() + length
+      end = time.time() + self.length
       while time.time() < end:
         print(time.time())
         print(len(dHigh))
@@ -114,14 +132,14 @@ class Experiment():
       print("Low: ", dLow, "High: ", dHigh)
       self.data.append((dLow, dHigh))
   
-  def camera_capture(self, length, snapshot):
+  def camera_capture(self):
     camera_capture = CameraCapture(self.cameraFps)
 
-    camera_capture.collect_data(length)
+    camera_capture.collect_data(self.cameraLength)
 
     self.frames = camera_capture.data
     
-    os.makedirs(f"{self.savePath}/frames/snapshot_{snapshot}", exist_ok=True)
+    os.makedirs(f"{self.savePath}/frames", exist_ok=True)
     
     if len(self.frames) == 0 or (len(self.frames) != 0 and len(self.frames[-1]) == 0):
       print("NO FRAMES CAPTURED")
@@ -129,7 +147,7 @@ class Experiment():
     
     print(np.array(self.frames).shape)
     for i in range(len(self.frames)):
-      r = cv2.imwrite(f"{self.savePath}/frames/snapshot_{snapshot}/{i}_of_{len(self.frames)}.png", np.array(self.frames[i], dtype=np.uint8))
+      r = cv2.imwrite(f"{self.savePath}/frames/{i}_of_{len(self.frames)}.png", np.array(self.frames[i], dtype=np.uint8))
       print(r)
 
     print(f"Saved frames to {self.savePath}/frames")
@@ -146,10 +164,9 @@ class Experiment():
       dataDict = {
         "date": self.date,
         "metadata": {
-          "snapshotLength": f"{self.snapshotLength} s",
-          "snapshotsPerMinute": f"{self.snapshotsPerMinute}/min",
-          "experimentDuration": f"{self.length} min",
+          "experimentDuration": f"{self.length} s",
           "cameraFps": self.cameraFps,
+          "cameraSnapshotLength": f"{self.cameraLength} s",
         },
         "impedanceData": {
           "low": [],
@@ -169,20 +186,3 @@ class Experiment():
       return self.data[-1]
     else:
       return ([],[])
-  
-  def checkThreshold(self):
-    print("checking threshold!")
-    realTimeAnalysis = RealTimeAnalysis(self.getLatestData())
-    threshold = realTimeAnalysis.checkThresholdMock()
-    
-    self.thresholds.append({threshold: realTimeAnalysis.point})
-
-    return threshold
-  
-  def fetchLatestThreshold(self):
-    if self.thresholds != []:
-      (k, v), = self.thresholds[-1].items()
-      if k:
-        return v
-    else:
-      return None
