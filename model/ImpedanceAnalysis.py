@@ -1,6 +1,7 @@
 import statistics
 import random
 import math
+import numpy as np
 
 class ImpedanceAnalysis:
     def __init__(self, data, numChunks = 10):
@@ -54,6 +55,28 @@ class ImpedanceAnalysis:
         # computes and saves capacitances at each time chunk
         for i in range(self.numChunks):
             self.cap_list.append(fR / math.sqrt(self.imp_low_list[i]**2 - self.imp_high_list[i]**2))
+            
+    
+    def lagrange_interpolation(data, x):
+        """
+        Perform lagrange interpolation on a given set of points.
+        :param data: Dictionary where keys are x-values and values are y-values.
+        :param x: The x-value to interpolate.
+        :return: Interpolated y-value.
+        """
+        x_vals = np.array(list(data.keys()))
+        y_vals = np.array(list(data.values()))
+        
+        n = len(x_vals)
+        L_x = np.ones(n)
+        
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    L_x[i] *= (x - x_vals[j]) / (x_vals[i] - x_vals[j])
+        
+        y_interp = np.dot(L_x, y_vals)
+        return y_interp
 
 def generateRandomVal(base):
     noise = random.random() * 40
