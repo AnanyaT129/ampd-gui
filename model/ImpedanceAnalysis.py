@@ -2,11 +2,15 @@ import statistics
 import random
 import math
 import numpy as np
+import os
+from pathlib import Path
+import json
 
 class ImpedanceAnalysis:
-    def __init__(self, data, numChunks = 10):
-        self.low = data[0]
-        self.high = data[1]
+    def __init__(self, date, low_data, high_data, numChunks = 10):
+        self.date = date
+        self.low = low_data
+        self.high = high_data
         self.low_length = len(self.low)
         self.high_length = len(self.high)
         self.numChunks = numChunks
@@ -54,8 +58,28 @@ class ImpedanceAnalysis:
 
         # computes and saves capacitances at each time chunk
         for i in range(self.numChunks):
-            self.cap_list.append(fR / math.sqrt(self.imp_low_list[i]**2 - self.imp_high_list[i]**2))
-            
+            self.cap_list.append(fR / math.sqrt(abs(self.imp_low_list[i]**2 - self.imp_high_list[i]**2)))
+    
+    def write(self, savePath):
+        os.makedirs(savePath, exist_ok=True)
+        filename = Path(f'{savePath}/impedanceAnalysis.json')
+        filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
+
+        with open(f'{savePath}/impedanceAnalysis.json', 'a') as f:
+            dataDict = {
+                "date": self.date,
+                "metadata": {
+                    "numChunks": self.numChunks,
+                },
+                "analysisResults": {
+                    "imp_low": self.imp_low_list,
+                    "imp_high": self.imp_high_list,
+                    "capacitance": self.cap_list
+                }
+            }
+        
+            json.dump(dataDict, f, ensure_ascii=False, indent=4)
+            f.write("\n")
     
     def lagrange_interpolation(data, x):
         """
@@ -85,8 +109,8 @@ def generateRandomVal(base):
     else:
         return base + noise
 
-data = [generateRandomVal(200) for i in range(5000)] + [generateRandomVal(300) for i in range(5000)]
-print(len(data))
+# data = [generateRandomVal(200) for i in range(5000)] + [generateRandomVal(300) for i in range(5000)]
+# print(len(data))
 
-ia = ImpedanceAnalysis(data, 10)
-ia.run()
+# ia = ImpedanceAnalysis(data, 10)
+# ia.run()

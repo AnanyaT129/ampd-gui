@@ -142,6 +142,7 @@ class ExperimentMonitor(QWidget):
 
       self.impedance_thread.log_signal.connect(self.log)
       self.impedance_thread.stop_experiment_signal.connect(self.stop_experiment_from_thread)
+      self.impedance_thread.change_status_signal.connect(self.change_status)
 
       self.impedance_thread.start()
     else:
@@ -151,7 +152,9 @@ class ExperimentMonitor(QWidget):
     self.stop_experiment(confirmationOverride = True)
 
   def stop_experiment(self, confirmationOverride = False):
-    if self.status == DeviceStatus.RUNNING_EXPERIMENT:
+    if (self.status == DeviceStatus.RUNNING_EXPERIMENT or 
+        self.status == DeviceStatus.CAPTURING_IMPEDANCE_DATA or 
+        self.status == DeviceStatus.CAPTURING_CAMERA_DATA):
       if confirmationOverride or self.stopConfirmation():
         self.log("Experiment Stopped")
         self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)

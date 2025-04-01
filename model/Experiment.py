@@ -31,8 +31,6 @@ class Experiment():
     #comment out if you want to run without pins connected
     # self.tdsLow = LED(self.onOffPinLow)
     # self.tdsHigh = LED(self.onOffPinHigh)
-    
-    os.makedirs(self.savePath, exist_ok=True)
 
   def addLog(self, newLog):
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -67,7 +65,8 @@ class Experiment():
       dHigh.append(random.randint(0, 3000))
       sleep(0.1)
     
-    self.data.append((dLow, dHigh))
+    self.data.append(dLow)
+    self.data.append(dHigh)
   
   def mock_camera_capture(self):
     mockFrames = []
@@ -83,10 +82,8 @@ class Experiment():
       print("NO FRAMES CAPTURED")
       return
     
-    print(np.array(self.frames).shape)
     for i in range(len(self.frames)):
       r = cv2.imwrite(f"{self.savePath}/frames/{i}_of_{len(self.frames)}.png", np.array(self.frames[i], dtype=np.uint8))
-      print(r)
 
     print(f"Saved frames to {self.savePath}/frames")
   
@@ -157,6 +154,7 @@ class Experiment():
     self.frames = []
 
   def write(self):
+    os.makedirs(self.savePath, exist_ok=True)
     filename = Path(f'{self.savePath}/data.json')
     filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
 
@@ -169,20 +167,16 @@ class Experiment():
           "cameraSnapshotLength": f"{self.cameraLength} s",
         },
         "impedanceData": {
-          "low": [],
-          "high": []
+          "low": self.data[0],
+          "high": self.data[1]
         }
       }
-
-      for i in range(len(self.data)):
-        dataDict["impedanceData"]["low"].append(self.data[i][0])
-        dataDict["impedanceData"]["high"].append(self.data[i][1])
     
       json.dump(dataDict, f, ensure_ascii=False, indent=4)
       f.write("\n")
   
   def getLatestData(self):
     if self.data != []:
-      return self.data[-1]
+      return self.data
     else:
-      return ([],[])
+      return [[],[]]

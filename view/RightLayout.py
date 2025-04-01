@@ -9,6 +9,7 @@ import pyqtgraph as pg
 import numpy as np
 import os
 from model.Parser import Parser
+from view.ImpedanceAnalysisWindow import ImpedanceAnalysisWindow
 
 class RightLayout(QVBoxLayout):
     def __init__(self, experiment):
@@ -66,28 +67,9 @@ class RightLayout(QVBoxLayout):
         self.plot_widget.plot(x_data_high, y_data_high, pen='b', symbol='o', symbolBrush='g')
     
     def impedance_analysis(self):
-        file_dialog = QFileDialog()
-        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)  # Allow selecting only existing files
-        file_dialog.setNameFilter("JSON Files (*.json)")
-        if file_dialog.exec():  # If the dialog is accepted
-            file_paths = file_dialog.selectedFiles()[0]
-        parser = Parser()
-        parser.parse_json(file_paths)
-        '''
-        print(f"Date: {parser.date}")
-        print("Metadata:")
-        print(f"  Snapshot Length: {parser.snapshot_length}")
-        print(f"  Snapshots Per Minute: {parser.snapshots_per_minute}")
-        print(f"  Experiment Duration: {parser.experiment_duration}")
-        print(f"  Camera FPS: {parser.camera_fps}")
-        
-        print("Impedance Data:")
-        print(f"  Low Impedance: {parser.low_impedance}")
-        print(f"  High Impedance: {parser.high_impedance}")
-        '''
-        
-        # impedance_analysis = ImpedanceAnalysis(self.experiment.data)
-        # impedance_analysis.run()
+        if self.impedanceAnalysisWindow is None:
+            self.impedanceAnalysisWindow = ImpedanceAnalysisWindow()
+        self.impedanceAnalysisWindow.show()
     
     def camera_analysis(self):
         folder_dialog = QFileDialog()
