@@ -25,5 +25,5 @@ class Parser:
         # Extract impedance data
         self.low_impedance = impedance_data.get("low", [])
         self.high_impedance = impedance_data.get("high", [])
-parser = Parser()
-parser.parse_json('20250327_1920_ampd_experiment_data/data.json')
+#parser = Parser()
+#parser.parse_json('20250327_1920_ampd_experiment_data/data.json')
