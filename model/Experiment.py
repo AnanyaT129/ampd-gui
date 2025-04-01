@@ -9,7 +9,7 @@ from pathlib import Path
 import os
 
 from model.cameracapture import CameraCapture
-# from gpiozero import MCP3008, LED
+from gpiozero import MCP3008, LED
 
 class Experiment():
   def __init__(self):
@@ -19,7 +19,7 @@ class Experiment():
     self.cameraLength = 1
     self.length = 5
     self.cameraFps = 30
-    self.enable = [True, True]
+    self.enable = [True, False]
 
     self.date = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
@@ -29,15 +29,15 @@ class Experiment():
     self.onOffPinHigh = 25
     
     #comment out if you want to run without pins connected
-    # self.tdsLow = LED(self.onOffPinLow)
-    # self.tdsHigh = LED(self.onOffPinHigh)
+    self.tdsLow = LED(self.onOffPinLow)
+    self.tdsHigh = LED(self.onOffPinHigh)
 
   def addLog(self, newLog):
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     self.logs.append(time + " " + newLog)
   
   def addDatapoint(self, lowHigh: bool):
-    print("no pi")
+    # print("no pi")
     
     if not lowHigh:
       # get data from low pin
@@ -104,8 +104,9 @@ class Experiment():
       while time.time() < end:
         print(time.time())
         print(len(dLow))
-        dLow.append(self.addDatapoint(False))
-        sleep(0.1)
+        sig = MCP3008(0)
+        dLow.append(sig.value * 3300)
+        #sleep(0.1)
       self.tdsLow.off()
       print("Done data collection")
       sleep(1)
@@ -119,15 +120,16 @@ class Experiment():
       while time.time() < end:
         print(time.time())
         print(len(dHigh))
-        dHigh.append(self.addDatapoint(True))
-        sleep(0.1)
+        sig = MCP3008(1)
+        dHigh.append(sig.value * 3300)
+        #sleep(0.1)
       sleep(1)
       self.tdsHigh.off()
     except Exception as e:
       print(e)
     finally:
       print("Low: ", dLow, "High: ", dHigh)
-      self.data.append((dLow, dHigh))
+      self.data = [dLow, dHigh]
   
   def camera_capture(self):
     camera_capture = CameraCapture(self.cameraFps)
