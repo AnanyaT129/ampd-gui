@@ -14,7 +14,7 @@ from model.Server import Server
 from view.components.experimentMonitor.LengthInput import LengthInput
 from view.components.experimentMonitor.sockets.WorkerThread import WorkerThread
 from view.components.Logs import Logs
-from model.DeviceStatus import DeviceStatus
+from model.constants.DeviceStatus import DeviceStatus
 
 class ExperimentMonitorThreaded(QWidget):
     def __init__(self, experiment: Experiment):

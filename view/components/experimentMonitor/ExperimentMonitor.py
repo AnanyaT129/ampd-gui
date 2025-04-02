@@ -7,14 +7,15 @@ from PyQt6.QtWidgets import (
   QPushButton,
   QMessageBox,
   QLineEdit,
-  QFormLayout
+  QFormLayout,
+  QCheckBox
 )
 from PyQt6.QtGui import QColor, QPalette, QIntValidator
 
 import time
 
 from view.components.Logs import Logs
-from model.DeviceStatus import DeviceStatus
+from model.constants.DeviceStatus import DeviceStatus
 from view.components.experimentMonitor.ExperimentThread import ExperimentThread
 
 class ExperimentMonitor(QWidget):
@@ -57,6 +58,18 @@ class ExperimentMonitor(QWidget):
     self.cameraFPSWidget.setText("30")
     self.cameraFPSWidget.textChanged.connect(self.fPSChanged)
     self.variablesFormWidget.addRow("Camera FPS (frames/s): ", self.cameraFPSWidget)
+
+    self.experimentEnableLayout = QHBoxLayout()
+    self.impedanceEnable = QCheckBox("Impedance", self)
+    self.impedanceEnable.setCheckState(Qt.CheckState.Checked)
+    self.impedanceEnable.stateChanged.connect(self.impedanceChanged)
+    self.cameraEnable = QCheckBox("Camera", self)
+    self.cameraEnable.setCheckState(Qt.CheckState.Checked)
+    self.cameraEnable.stateChanged.connect(self.cameraChanged)
+
+    self.experimentEnableLayout.addWidget(self.impedanceEnable)
+    self.experimentEnableLayout.addWidget(self.cameraEnable)
+    self.variablesFormWidget.addRow("Experiment Enable: ", self.experimentEnableLayout)
 
     # Experiment status labels 
     labelConnect = QLabel("Device Status")
@@ -124,6 +137,26 @@ class ExperimentMonitor(QWidget):
     if (text != ""):
       self.experiment.length = int(text)
       self.experimentVariableChanged("Length", self.experiment.length)
+
+  def impedanceChanged(self, state):
+    if state == 2: # Qt.Checked
+      self.experiment.enable[0] = True
+      self.log("Impedance enabled")
+    elif state == 0: # Qt.Unchecked
+      self.experiment.enable[0] = False
+      self.log("Impedance disabled")
+    
+    print(self.experiment.enable)
+  
+  def cameraChanged(self, state):
+    if state == 2: # Qt.Checked
+      self.experiment.enable[1] = True
+      self.log("Camera enabled")
+    elif state == 0: # Qt.Unchecked
+      self.experiment.enable[1] = False
+      self.log("Camera disabled")
+    
+    print(self.experiment.enable)
   
   def change_status(self, new_status: DeviceStatus):
     self.status = new_status

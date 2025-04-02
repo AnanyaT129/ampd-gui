@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 import time
 
-from model.DeviceStatus import DeviceStatus
+from model.constants.DeviceStatus import DeviceStatus
 
 class ExperimentThread(QThread):
     # Define signals to communicate with the main thread
@@ -19,7 +19,7 @@ class ExperimentThread(QThread):
             if (self.experiment.enable[0]):
                 self.change_status_signal.emit(DeviceStatus.CAPTURING_IMPEDANCE_DATA)
                 self.log_signal.emit(f"Collecting impdedance data for {self.experiment.length} seconds")
-                self.experiment.start_data_collection()
+                self.experiment.start_mock_data_collection()
 
                 self.log_signal.emit(f"Data collected: {len(self.experiment.data[0])} low measurements and {len(self.experiment.data[1])} high measurements")
             

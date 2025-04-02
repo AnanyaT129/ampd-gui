@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 
-from model.DeviceStatus import DeviceStatus
+from model.constants.DeviceStatus import DeviceStatus
 
 class WorkerThread(QThread):
     # Define signals to communicate with the main thread

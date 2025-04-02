@@ -5,60 +5,107 @@ import numpy as np
 import os
 from pathlib import Path
 import json
+from scipy import stats
+from model.constants.AnalysisConstants import HIGH_FREQUENCY, LOW_FREQUENCY
 
 class ImpedanceAnalysis:
     def __init__(self, date, low_data, high_data, numChunks = 10):
         self.date = date
         self.low = low_data
         self.high = high_data
-        self.low_length = len(self.low)
-        self.high_length = len(self.high)
         self.numChunks = numChunks
-        self.avg_low_list = []
-        self.avg_high_list = []
         self.imp_low_list = []
         self.imp_high_list = []
         self.cap_list = []
-        self.fH = 2390 # high frequency probe
-        self.fL = 250 # low frequency probe
+        self.ppmLow = 0
+        self.ppmHigh = 1
+        self.estimatedPlasticContent = False
+        self.ttestResults = None
 
     def run(self):
-        self.chunk_avg()
-        self.calc_imp()
-        self.calc_cap()
-
-    def chunk_avg(self):
         # chunks low frequency data into average bins
-        low_chunk_size = self.low_length // self.numChunks
-        for i in range(self.numChunks-1):
-            self.avg_low_list.append(statistics.mean(self.low[i:i+low_chunk_size-1]))
-        self.avg_low_list.append(statistics.mean(self.low[self.numChunks-1:]))
+        avg_low_list = self.chunk_avg(self.low)
 
         # chunks high frequency data into average bins
-        high_chunk_size = self.high_length // self.numChunks
-        for i in range(self.numChunks - 1):
-            self.avg_high_list.append(statistics.mean(self.high[i:i + high_chunk_size - 1]))
-        self.avg_high_list.append(statistics.mean(self.high[self.numChunks - 1:]))
+        avg_high_list = self.chunk_avg(self.high)
 
-    def calc_imp(self):
+        # computes and saves impedances for low frequency average
+        self.imp_low_list = self.calc_imp(avg_low_list)
+
+        # computes and saves impedances for high frequency average
+        self.imp_high_list = self.calc_imp(avg_high_list)
+
+        # calculate capacitance
+        self.calc_cap()
+
+        # run t test on the raw data
+        self.run_ttest("model/water_data.json")
+
+    def chunk_avg(self, arr):
+        avg_arr = []
+        low_chunk_size = len(arr) // self.numChunks
+        for i in range(self.numChunks-1):
+            avg_arr.append(statistics.mean(arr[i:i+low_chunk_size-1]))
+        avg_arr.append(statistics.mean(arr[self.numChunks-1:]))
+
+        return avg_arr
+
+    def calc_imp(self, arr):
         # saves the transimpedance amplifier resistance gain times the input voltage
         rf_vin = 5600*200
 
-        # computes and saves impedances at the low frequency
-        for i in range(self.numChunks):
-            self.imp_low_list.append(rf_vin/self.avg_low_list[i])
-
-        # computes and stores impedances at the high frequency
-        for i in range(self.numChunks):
-            self.imp_high_list.append(rf_vin/self.avg_high_list[i])
+        # computes and saves impedances
+        imp_arr = []
+        for i in range(len(arr)):
+            imp_arr.append(rf_vin/arr[i])
+        
+        return imp_arr
 
     def calc_cap(self):
         # saves a frequency ratio for future calculations
-        fR = math.sqrt(self.fH**2-self.fL**2) / (2*math.pi*self.fH*self.fL)
+        fR = math.sqrt(HIGH_FREQUENCY**2-LOW_FREQUENCY**2) / (2*math.pi*HIGH_FREQUENCY*LOW_FREQUENCY)
 
         # computes and saves capacitances at each time chunk
         for i in range(self.numChunks):
             self.cap_list.append(fR / math.sqrt(abs(self.imp_low_list[i]**2 - self.imp_high_list[i]**2)))
+
+    def run_ttest(self, water_path, alpha = 0.05):
+        with open(water_path, 'r') as file:
+            data = json.load(file)
+
+            impedance_data = data.get("impedanceData", {})
+
+            water_low = self.calc_imp(impedance_data.get("low", []))
+            water_high = self.calc_imp(impedance_data.get("high", []))
+        
+        sample_low = self.calc_imp(self.low)
+        sample_high = self.calc_imp(self.high)
+
+        # step 1: check that data is normal
+        _, p_1 = stats.shapiro(water_low)
+        _, p_2 = stats.shapiro(water_high)
+        _, p_3 = stats.shapiro(sample_low)
+        _, p_4 = stats.shapiro(sample_high)
+
+        if not ((p_1 < 0.05) and (p_2 < 0.05) and (p_3 < 0.05) and (p_4 < 0.05)):
+            self.ttestResults = None
+            return
+        
+        # step 2: check for equal variance:
+        _, p_b_low = stats.bartlett(water_low, sample_low)
+        _, p_b_high = stats.bartlett(water_high, sample_high)
+
+        if not ((p_b_low < alpha) and (p_b_high < alpha)):
+            self.ttestResults = None
+            return
+
+        # step 3: run t test
+        t_low, p_low = stats.ttest_ind(water_low, sample_low)
+        t_high, p_high = stats.ttest_ind(water_high, sample_high)
+
+        self.ttestResults = [{"t": t_low, "p": p_low}, {"t": t_high, "p": p_high}]
+
+        self.estimatedPlasticContent = p_low < alpha and p_high < alpha
     
     def write(self, savePath):
         os.makedirs(savePath, exist_ok=True)

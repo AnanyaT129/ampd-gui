@@ -9,7 +9,8 @@ from pathlib import Path
 import os
 
 from model.cameracapture import CameraCapture
-from gpiozero import MCP3008, LED
+from model.constants.PinsAndChannels import ADC, GPIOPins
+# from gpiozero import MCP3008, LED
 
 class Experiment():
   def __init__(self):
@@ -19,39 +20,22 @@ class Experiment():
     self.cameraLength = 1
     self.length = 5
     self.cameraFps = 30
-    self.enable = [True, False]
+    self.enable = [True, True]
 
     self.date = datetime.datetime.now().strftime('%Y%m%d_%H%M')
 
     self.savePath = f"{self.date}_ampd_experiment_data"
     
-    self.onOffPinLow = 23
-    self.onOffPinHigh = 25
+    self.onOffPinLow = GPIOPins.LOW_FREQ_ON
+    self.onOffPinHigh = GPIOPins.HIGH_FREQ_ON
     
     #comment out if you want to run without pins connected
-    self.tdsLow = LED(self.onOffPinLow)
-    self.tdsHigh = LED(self.onOffPinHigh)
+    # self.tdsLow = LED(self.onOffPinLow)
+    # self.tdsHigh = LED(self.onOffPinHigh)
 
   def addLog(self, newLog):
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     self.logs.append(time + " " + newLog)
-  
-  def addDatapoint(self, lowHigh: bool):
-    # print("no pi")
-    
-    if not lowHigh:
-      # get data from low pin
-      sig = MCP3008(0)
-      d = sig.value * 3300
-    
-    else:
-      # get data from high pin
-      sig = MCP3008(1)
-      d = sig.value * 3300
-    
-    # print(d)
-    return d
-    # return 0
 
   def start_mock_data_collection(self):
     dLow = []
@@ -104,7 +88,7 @@ class Experiment():
       while time.time() < end:
         print(time.time())
         print(len(dLow))
-        sig = MCP3008(0)
+        sig = MCP3008(ADC.LOW_FREQ_PROBE)
         dLow.append(sig.value * 3300)
         #sleep(0.1)
       self.tdsLow.off()
@@ -120,7 +104,7 @@ class Experiment():
       while time.time() < end:
         print(time.time())
         print(len(dHigh))
-        sig = MCP3008(1)
+        sig = MCP3008(ADC.HIGH_FREQ_PROBE)
         dHigh.append(sig.value * 3300)
         #sleep(0.1)
       sleep(1)
@@ -128,7 +112,7 @@ class Experiment():
     except Exception as e:
       print(e)
     finally:
-      print("Low: ", dLow, "High: ", dHigh)
+      print("Low: ", len(dLow), "High: ", len(dHigh))
       self.data = [dLow, dHigh]
   
   def camera_capture(self):

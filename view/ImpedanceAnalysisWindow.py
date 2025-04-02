@@ -4,12 +4,17 @@ from PyQt6.QtWidgets import (QWidget,
                              QHBoxLayout,
                              QMessageBox,
                              QFileDialog,
-                             QLabel)
+                             QLabel,
+                             QFormLayout,
+                             QLineEdit)
+from PyQt6.QtGui import QIntValidator
 import pyqtgraph as pg
 import numpy as np
 
 from model.ImpedanceAnalysis import ImpedanceAnalysis
 from model.Parser import Parser
+from view.components.ImpedanceAnalysisMetadata import ImpedanceAnalysisMetadata
+from view.components.ImpedanceAnalysisResults import ImpedanceAnalysisResults
 
 class ImpedanceAnalysisWindow(QWidget):
     def __init__(self):
@@ -24,15 +29,30 @@ class ImpedanceAnalysisWindow(QWidget):
 
         self.uploadDataFileButton = QPushButton("Upload Data File", clicked=self.uploadDataFile)
         self.labelDataFile = QLabel("Data from: ")
+        
+        self.variablesFormWidget = QFormLayout()
+        self.numChunksWidget = QLineEdit()
+        self.numChunksWidget.setValidator(QIntValidator())
+        self.numChunksWidget.setText("10")
+        self.numChunksWidget.textChanged.connect(self.numChunksChanged)
+        self.variablesFormWidget.addRow("Number of data chunks: ", self.numChunksWidget)
+
+        self.metadata = ImpedanceAnalysisMetadata()
 
         self.runAnalysisButton = QPushButton("Run Analysis", clicked=self.runAnalysis)
         self.runAnalysisButton.setEnabled(False)
         self.runAnalysisButton.setStyleSheet("color: black; background-color: grey")
 
+        self.results = ImpedanceAnalysisResults()
+        self.results.refresh(None)
+
         uploadLayout = QVBoxLayout()
         uploadLayout.addWidget(self.uploadDataFileButton)
         uploadLayout.addWidget(self.labelDataFile)
+        uploadLayout.addLayout(self.variablesFormWidget)
+        uploadLayout.addWidget(self.metadata)
         uploadLayout.addWidget(self.runAnalysisButton)
+        uploadLayout.addWidget(self.results)
 
         # Create and set up pyqtgraph plot widget
         self.impedance_widget = pg.PlotWidget()
@@ -63,6 +83,12 @@ class ImpedanceAnalysisWindow(QWidget):
         layout.addWidget(QPushButton("Save and Close", clicked=self.save_and_close))
         self.setLayout(layout)
     
+    def numChunksChanged(self, numChunks):
+        if self.impedanceAnalysis is not None:
+            self.impedanceAnalysis.numChunks = numChunks
+        
+        self.metadata.refresh(self.impedanceAnalysis)
+
     def save_and_close(self):
         if self.stopConfirmation() and self.impedanceAnalysis is not None:
             self.impedanceAnalysis.write(self.savePath)
@@ -88,13 +114,18 @@ class ImpedanceAnalysisWindow(QWidget):
         self.savePath = file_label
 
         self.labelDataFile.setText(f"Data from: {file_label}")
+
+        self.impedanceAnalysis = ImpedanceAnalysis(self.date, self.data.low_impedance, self.data.high_impedance)
+
+        self.metadata.refresh(self.impedanceAnalysis)
     
     def runAnalysis(self):
         if (self.data is None):
             print("No data to analyze")
         else:
-            self.impedanceAnalysis = ImpedanceAnalysis(self.date, self.data.low_impedance, self.data.high_impedance)
             self.impedanceAnalysis.run()
+
+            self.results.refresh(self.impedanceAnalysis)
 
             duration = float(self.data.experiment_duration.split()[0])
 
