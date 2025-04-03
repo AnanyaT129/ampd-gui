@@ -8,8 +8,11 @@ from PyQt6.QtWidgets import (
 import pyqtgraph as pg
 import numpy as np
 import os
+from model.CameraAnalysis import CameraAnalysis
 from model.Parser import Parser
+from view.CameraAnalysisWindow import CameraAnalysisWindow
 from view.ImpedanceAnalysisWindow import ImpedanceAnalysisWindow
+from view.components.upload.UploadWindow import UploadWindow
 
 class RightLayout(QVBoxLayout):
     def __init__(self, experiment):
@@ -37,17 +40,18 @@ class RightLayout(QVBoxLayout):
         self.impedanceAnalysisWindow = None
         self.impedanceAnalysisButton = QPushButton()
         self.impedanceAnalysisButton.setText("Impedance Analysis")
-        self.impedanceAnalysisButton.setStyleSheet("color: black;")
         self.impedanceAnalysisButton.clicked.connect(self.impedance_analysis)
 
+        self.cameraAnalysisWindow = None
         self.cameraAnalysisButton = QPushButton()
         self.cameraAnalysisButton.setText("Camera Analysis")
-        self.cameraAnalysisButton.setStyleSheet("color: black;")
         self.cameraAnalysisButton.clicked.connect(self.camera_analysis)
 
+        self.uploadWindow = None
         self.analysisLayout = QHBoxLayout()
         self.analysisLayout.addWidget(self.impedanceAnalysisButton)
         self.analysisLayout.addWidget(self.cameraAnalysisButton)
+        self.analysisLayout.addWidget(QPushButton("Upload Data", clicked=self.upload))
 
         self.addLayout(self.analysisLayout)
 
@@ -72,12 +76,11 @@ class RightLayout(QVBoxLayout):
         self.impedanceAnalysisWindow.show()
     
     def camera_analysis(self):
-        folder_dialog = QFileDialog()
-        folder_dialog.setFileMode(QFileDialog.FileMode.Directory)  # Allow selecting directories only
-        folder_dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)  # Ensure only directories are shown
-        if folder_dialog.exec():  # If the dialog is accepted
-            folder_path = folder_dialog.selectedFiles()[0]
-        png_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.lower().endswith(".png")]
-        # print(png_files)
-        # camera_analysis = CameraAnalysis(self.experiment.frames)
-        # camera_analysis.run()
+        if self.cameraAnalysisWindow is None:
+            self.cameraAnalysisWindow = CameraAnalysisWindow(CameraAnalysis())
+        self.cameraAnalysisWindow.show()
+    
+    def upload(self):
+        if self.uploadWindow is None:
+            self.uploadWindow = UploadWindow()
+        self.uploadWindow.show()

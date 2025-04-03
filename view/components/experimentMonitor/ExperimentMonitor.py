@@ -28,7 +28,7 @@ class ExperimentMonitor(QWidget):
     self.logsWidget = Logs(self)
 
     palette = self.palette()
-    palette.setColor(QPalette.ColorRole.Window, QColor("White"))
+    # palette.setColor(QPalette.ColorRole.Window, QColor("White"))
     self.setPalette(palette)
 
     # Experiment thread
@@ -36,7 +36,7 @@ class ExperimentMonitor(QWidget):
 
     # Experiment title label
     labelTitle = QLabel(f"Title: {self.experiment.savePath}")
-    labelTitle.setStyleSheet("color: black; font-weight: bold")
+    labelTitle.setStyleSheet("font-weight: bold")
 
     # Experiment Variables
     self.variablesFormWidget = QFormLayout()
@@ -73,11 +73,10 @@ class ExperimentMonitor(QWidget):
 
     # Experiment status labels 
     labelConnect = QLabel("Device Status")
-    labelConnect.setStyleSheet("color: black; font-weight: bold")
+    labelConnect.setStyleSheet("font-weight: bold")
 
     self.status = DeviceStatus.READY_TO_START_EXPERIMENT
     self.labelStatus = QLabel(self.status.value)
-    self.labelStatus.setStyleSheet("color: black;")
 
     statusLayout = QHBoxLayout()
     statusLayout.addWidget(labelConnect)
@@ -97,7 +96,6 @@ class ExperimentMonitor(QWidget):
     # data clear button
     self.clearButton = QPushButton()
     self.clearButton.setText("Clear Data")
-    self.clearButton.setStyleSheet("color: black")
     self.clearButton.clicked.connect(self.experiment.clear)
 
     # data collection layout

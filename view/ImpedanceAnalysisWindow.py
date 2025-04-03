@@ -41,7 +41,7 @@ class ImpedanceAnalysisWindow(QWidget):
 
         self.runAnalysisButton = QPushButton("Run Analysis", clicked=self.runAnalysis)
         self.runAnalysisButton.setEnabled(False)
-        self.runAnalysisButton.setStyleSheet("color: black; background-color: grey")
+        self.runAnalysisButton.setStyleSheet("background-color: grey")
 
         self.results = ImpedanceAnalysisResults()
         self.results.refresh(None)
@@ -62,13 +62,13 @@ class ImpedanceAnalysisWindow(QWidget):
         self.impedance_widget.setTitle("Impedance Data")
         self.impedance_widget.setLabel("left", "Value")
         self.impedance_widget.setLabel("bottom", "Time", units="s")
-        self.impedance_widget.setYRange(0, 3300)
+        self.impedance_widget.setYRange(5000, 15000)
 
         # Set up plot parameters
         self.capacitance_widget.setTitle("Capacitance Data")
         self.capacitance_widget.setLabel("left", "Value")
         self.capacitance_widget.setLabel("bottom", "Time", units="s")
-        self.capacitance_widget.setYRange(0, 3300)
+        self.capacitance_widget.setYRange(0, 20)
        
         displayLayout = QVBoxLayout()
         displayLayout.addWidget(self.impedance_widget)
@@ -107,7 +107,6 @@ class ImpedanceAnalysisWindow(QWidget):
 
         self.data = parser
         self.runAnalysisButton.setEnabled(True)
-        self.runAnalysisButton.setStyleSheet("color: black;")
 
         file_label = ''.join(file_paths.split('/')[-2])
         self.date = file_label
@@ -129,26 +128,37 @@ class ImpedanceAnalysisWindow(QWidget):
 
             duration = float(self.data.experiment_duration.split()[0])
 
-            self.graph_impedance_data(duration, self.impedanceAnalysis.imp_low_list, self.impedanceAnalysis.imp_high_list)
-            self.graph_capacitance_data(duration, self.impedanceAnalysis.cap_list)
+            self.graph_impedance_data(duration, 
+                                      self.impedanceAnalysis.imp_low_list,
+                                      self.impedanceAnalysis.imp_high_list,
+                                      self.impedanceAnalysis.water_imp_low,
+                                      self.impedanceAnalysis.water_imp_high)
+            self.graph_capacitance_data(duration, self.impedanceAnalysis.cap_list, self.impedanceAnalysis.water_cap)
     
-    def graph_impedance_data(self, length, imp_low: list, imp_high: list):
+    def graph_impedance_data(self, length, imp_low: list, imp_high: list, water_low, water_high):
         # Extract X (time) and Y (value) for plotting
         x_data_low = np.linspace(0, length, len(imp_low))
         x_data_high = np.linspace(0, length, len(imp_high))
+        x_data_water_low = np.linspace(0, length, len(water_low))
+        x_data_water_high = np.linspace(0, length, len(water_high))
 
         # Update the plot with new data
         self.impedance_widget.clear()
         self.impedance_widget.plot(x_data_low, imp_low, pen='b', symbol='o', symbolBrush='r')
         self.impedance_widget.plot(x_data_high, imp_high, pen='b', symbol='o', symbolBrush='g')
+        self.impedance_widget.plot(x_data_water_low, water_low, pen='b', symbol='o', symbolBrush='w')
+        self.impedance_widget.plot(x_data_water_high, water_high, pen='b', symbol='o', symbolBrush='w')
 
-    def graph_capacitance_data(self, length, cap_list):
+
+    def graph_capacitance_data(self, length, cap_list, water_cap):
         # Extract X (time) and Y (value) for plotting
         x_data = np.linspace(0, length, len(cap_list))
+        x_data_water = np.linspace(0, length, len(water_cap))
 
         # Update the plot with new data
         self.capacitance_widget.clear()
         self.capacitance_widget.plot(x_data, cap_list, pen='b', symbol='o', symbolBrush='b')
+        self.capacitance_widget.plot(x_data_water, water_cap, pen='b', symbol='o', symbolBrush='w')
 
     def stopConfirmation(self):
         reply = QMessageBox.question(self, 'Save Analysis',

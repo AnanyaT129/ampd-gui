@@ -15,11 +15,11 @@ class ImpedanceAnalysisMetadata(QWidget):
 
         # meta data labels
         metadataTitle = QLabel("Metadata")
-        metadataTitle.setStyleSheet("color: black; font-weight: bold")
+        metadataTitle.setStyleSheet("font-weight: bold")
 
         dateLayout = QHBoxLayout()
         dateTitleLabel = QLabel("Date: ")
-        dateTitleLabel.setStyleSheet("color: black; font-weight: bold")
+        dateTitleLabel.setStyleSheet("font-weight: bold")
         self.dateContentLabel = QLabel("")
 
         dateLayout.addWidget(dateTitleLabel)
@@ -27,7 +27,7 @@ class ImpedanceAnalysisMetadata(QWidget):
 
         chunksLayout = QHBoxLayout()
         chunksTitleLabel = QLabel("Number of Data Chunks: ")
-        chunksTitleLabel.setStyleSheet("color: black; font-weight: bold")
+        chunksTitleLabel.setStyleSheet("font-weight: bold")
         self.chunksContentLabel = QLabel("")
 
         chunksLayout.addWidget(chunksTitleLabel)
@@ -35,7 +35,7 @@ class ImpedanceAnalysisMetadata(QWidget):
 
         numLowDataLayout = QHBoxLayout()
         numLowDataTitleLabel = QLabel("# Low Freq. Datapoints: ")
-        numLowDataTitleLabel.setStyleSheet("color: black; font-weight: bold")
+        numLowDataTitleLabel.setStyleSheet("font-weight: bold")
         self.numLowDataContentLabel = QLabel("")
 
         numLowDataLayout.addWidget(numLowDataTitleLabel)
@@ -43,7 +43,7 @@ class ImpedanceAnalysisMetadata(QWidget):
 
         numHighDataLayout = QHBoxLayout()
         numHighDataTitleLabel = QLabel("# High Freq. Datapoints: ")
-        numHighDataTitleLabel.setStyleSheet("color: black; font-weight: bold")
+        numHighDataTitleLabel.setStyleSheet("font-weight: bold")
         self.numHighDataContentLabel = QLabel("")
 
         numHighDataLayout.addWidget(numHighDataTitleLabel)

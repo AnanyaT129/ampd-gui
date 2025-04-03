@@ -9,17 +9,24 @@ from scipy import stats
 from model.constants.AnalysisConstants import HIGH_FREQUENCY, LOW_FREQUENCY
 
 class ImpedanceAnalysis:
-    def __init__(self, date, low_data, high_data, numChunks = 10):
+    def __init__(self, date, low_data, high_data, numChunks = 10, water_path = "model/water_data.json"):
         self.date = date
         self.low = low_data
         self.high = high_data
         self.numChunks = numChunks
+
+        self.water_path = water_path
+        self.water_imp_low = []
+        self.water_imp_high = []
+        self.water_cap = []
+
         self.imp_low_list = []
         self.imp_high_list = []
         self.cap_list = []
         self.ppmLow = 0
         self.ppmHigh = 1
-        self.estimatedPlasticContent = False
+        self.estimatedPlasticContent = 500
+        self.plasticPresent = False
         self.ttestResults = None
 
     def run(self):
@@ -36,10 +43,10 @@ class ImpedanceAnalysis:
         self.imp_high_list = self.calc_imp(avg_high_list)
 
         # calculate capacitance
-        self.calc_cap()
+        self.cap_list = self.calc_cap(self.imp_low_list, self.imp_high_list)
 
         # run t test on the raw data
-        self.run_ttest("model/water_data.json")
+        self.run_ttest()
 
     def chunk_avg(self, arr):
         avg_arr = []
@@ -61,22 +68,37 @@ class ImpedanceAnalysis:
         
         return imp_arr
 
-    def calc_cap(self):
+    def calc_cap(self, imp_low, imp_high):
         # saves a frequency ratio for future calculations
         fR = math.sqrt(HIGH_FREQUENCY**2-LOW_FREQUENCY**2) / (2*math.pi*HIGH_FREQUENCY*LOW_FREQUENCY)
 
         # computes and saves capacitances at each time chunk
+        cap_arr = []
         for i in range(self.numChunks):
-            self.cap_list.append(fR / math.sqrt(abs(self.imp_low_list[i]**2 - self.imp_high_list[i]**2)))
+            cap_arr.append(fR / math.sqrt(abs(imp_low[i]**2 - imp_high[i]**2)))
+        
+        return cap_arr
 
-    def run_ttest(self, water_path, alpha = 0.05):
-        with open(water_path, 'r') as file:
+    def get_water_data(self):
+        with open(self.water_path, 'r') as file:
             data = json.load(file)
 
             impedance_data = data.get("impedanceData", {})
 
             water_low = self.calc_imp(impedance_data.get("low", []))
             water_high = self.calc_imp(impedance_data.get("high", []))
+
+        avg_low_list = self.chunk_avg(water_low)
+        avg_high_list = self.chunk_avg(water_high)
+
+        self.water_imp_low = self.calc_imp(avg_low_list)
+        self.water_imp_high = self.calc_imp(avg_high_list)
+        self.water_cap = self.calc_cap(self.water_imp_low, self.water_imp_high)
+
+        return [water_low, water_high]
+
+    def run_ttest(self, alpha = 0.05):
+        water_low, water_high = self.get_water_data()
         
         sample_low = self.calc_imp(self.low)
         sample_high = self.calc_imp(self.high)
@@ -105,7 +127,7 @@ class ImpedanceAnalysis:
 
         self.ttestResults = [{"t": t_low, "p": p_low}, {"t": t_high, "p": p_high}]
 
-        self.estimatedPlasticContent = p_low < alpha and p_high < alpha
+        self.plasticPresent = p_low < alpha and p_high < alpha
     
     def write(self, savePath):
         os.makedirs(savePath, exist_ok=True)
@@ -117,11 +139,27 @@ class ImpedanceAnalysis:
                 "date": self.date,
                 "metadata": {
                     "numChunks": self.numChunks,
+                    "lowFreq": LOW_FREQUENCY,
+                    "highFreq": HIGH_FREQUENCY
                 },
                 "analysisResults": {
-                    "imp_low": self.imp_low_list,
-                    "imp_high": self.imp_high_list,
-                    "capacitance": self.cap_list
+                    "impLow": self.imp_low_list,
+                    "impHigh": self.imp_high_list,
+                    "capacitance": self.cap_list,
+                    "ppmLow": self.ppmLow,
+                    "ppmHigh": self.ppmHigh,
+                    "estPlasticContent": self.estimatedPlasticContent,
+                    "plasticPresent": str(self.plasticPresent),
+                    "ttestResults": {
+                        "low": {
+                            "t": self.ttestResults[0]["t"],
+                            "p": self.ttestResults[0]["p"]
+                        },
+                        "high": {
+                            "t": self.ttestResults[1]["t"],
+                            "p": self.ttestResults[1]["p"]
+                        }
+                    }
                 }
             }
         
