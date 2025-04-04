@@ -23,6 +23,7 @@ class ImpedanceAnalysis:
         self.imp_low_list = []
         self.imp_high_list = []
         self.cap_list = []
+        self.res_list= []
         self.ppmLow = 0
         self.ppmHigh = 1
         self.estimatedPlasticContent = 500
@@ -45,6 +46,9 @@ class ImpedanceAnalysis:
         # calculate capacitance
         self.cap_list = self.calc_cap(self.imp_low_list, self.imp_high_list)
 
+        # calculate resistance
+        self. res_list = self.calc_res(self.imp_high_list, self.cap_list)
+        
         # run t test on the raw data
         self.run_ttest()
 
@@ -78,6 +82,14 @@ class ImpedanceAnalysis:
             cap_arr.append(fR / math.sqrt(abs(imp_low[i]**2 - imp_high[i]**2)))
         
         return cap_arr
+
+    def calc_res(self, imp_high, cap):
+        # computes and saves conductances at each time chunk
+        res_arr = []
+        for i in range(self.numChunks):
+            res_arr.append(math.sqrt(imp_high[i]**2 - (1/4*math.pi*math.pi*self.HIGH_FREQUENCY \ 
+                                                       *self.HIGH_FREQUENCY*cap[i]*self.cap[i])))
+        return res_arr
 
     def get_water_data(self):
         with open(self.water_path, 'r') as file:
