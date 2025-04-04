@@ -1,2 +1,2 @@
-HIGH_FREQUENCY = 2390 # high frequency probe
-LOW_FREQUENCY = 250 # low frequency probe
+HIGH_FREQUENCY = 2404 # high frequency probe
+LOW_FREQUENCY = 259 # low frequency probe
