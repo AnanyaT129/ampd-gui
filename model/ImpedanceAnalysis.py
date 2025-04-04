@@ -133,6 +133,13 @@ class ImpedanceAnalysis:
         os.makedirs(savePath, exist_ok=True)
         filename = Path(f'{savePath}/impedanceAnalysis.json')
         filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
+        
+        ttestResults = self.ttestResults
+        if ttestResults is not None:
+            ttestResults = {
+                "low": {"t": self.ttestResults[0]["t"], "p": self.ttestResults[0]["p"]},
+                "high": {"t": self.ttestResults[1]["t"], "p": self.ttestResults[1]["p"]}
+            }
 
         with open(f'{savePath}/impedanceAnalysis.json', 'a') as f:
             dataDict = {
@@ -150,16 +157,7 @@ class ImpedanceAnalysis:
                     "ppmHigh": self.ppmHigh,
                     "estPlasticContent": self.estimatedPlasticContent,
                     "plasticPresent": str(self.plasticPresent),
-                    "ttestResults": {
-                        "low": {
-                            "t": self.ttestResults[0]["t"],
-                            "p": self.ttestResults[0]["p"]
-                        },
-                        "high": {
-                            "t": self.ttestResults[1]["t"],
-                            "p": self.ttestResults[1]["p"]
-                        }
-                    }
+                    "ttestResults": ttestResults
                 }
             }
         

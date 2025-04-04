@@ -10,7 +10,7 @@ import os
 
 from model.cameracapture import CameraCapture
 from model.constants.PinsAndChannels import ADC, GPIOPins
-# from gpiozero import MCP3008, LED
+from gpiozero import MCP3008, LED
 
 class Experiment():
   def __init__(self):
@@ -26,12 +26,12 @@ class Experiment():
 
     self.savePath = f"{self.date}_ampd_experiment_data"
     
-    self.onOffPinLow = GPIOPins.LOW_FREQ_ON
-    self.onOffPinHigh = GPIOPins.HIGH_FREQ_ON
+    self.onOffPinLow = GPIOPins.LOW_FREQ_ON.value
+    self.onOffPinHigh = GPIOPins.HIGH_FREQ_ON.value
     
     #comment out if you want to run without pins connected
-    # self.tdsLow = LED(self.onOffPinLow)
-    # self.tdsHigh = LED(self.onOffPinHigh)
+    self.tdsLow = LED(self.onOffPinLow)
+    self.tdsHigh = LED(self.onOffPinHigh)
 
   def addLog(self, newLog):
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -53,10 +53,14 @@ class Experiment():
     self.data.append(dHigh)
   
   def mock_camera_capture(self):
+    print("Started mock capture")
     mockFrames = []
 
     for i in range(self.cameraFps * self.cameraLength):
       mockFrames.append(np.random.randint(0, 256, size=(3840, 2160, 3), dtype=np.uint8))
+      print(len(mockFrames))
+    
+    print("Done generating frames")
     
     self.frames = mockFrames
 
@@ -86,9 +90,9 @@ class Experiment():
       end = time.time() + self.length
       print(end)
       while time.time() < end:
-        print(time.time())
-        print(len(dLow))
-        sig = MCP3008(ADC.LOW_FREQ_PROBE)
+        #print(time.time())
+        #print(len(dLow))
+        sig = MCP3008(ADC.LOW_FREQ_PROBE.value)
         dLow.append(sig.value * 3300)
         #sleep(0.1)
       self.tdsLow.off()
@@ -102,9 +106,9 @@ class Experiment():
       sleep(1)
       end = time.time() + self.length
       while time.time() < end:
-        print(time.time())
-        print(len(dHigh))
-        sig = MCP3008(ADC.HIGH_FREQ_PROBE)
+        #print(time.time())
+        #print(len(dHigh))
+        sig = MCP3008(ADC.HIGH_FREQ_PROBE.value)
         dHigh.append(sig.value * 3300)
         #sleep(0.1)
       sleep(1)

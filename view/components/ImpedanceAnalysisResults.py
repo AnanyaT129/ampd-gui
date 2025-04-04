@@ -79,7 +79,7 @@ class ImpedanceAnalysisResults(QWidget):
             self.ppmHighContentLabel.setText(str(impedanceAnalysis.ppmHigh))
             self.estContentContentLabel.setText(str(impedanceAnalysis.estimatedPlasticContent))
             if impedanceAnalysis.ttestResults is not None:
-                tTestStr = f"Low: t={round(impedanceAnalysis.ttestResults[0]["t"], 4)} p={round(impedanceAnalysis.ttestResults[0]["p"], 4)}, High: t={round(impedanceAnalysis.ttestResults[1]["t"], 4)} p={round(impedanceAnalysis.ttestResults[1]["p"], 4)}"
+                tTestStr = f"Low: t={round(impedanceAnalysis.ttestResults[0]['t'], 4)} p={round(impedanceAnalysis.ttestResults[0]['p'], 4)}, High: t={round(impedanceAnalysis.ttestResults[1]['t'], 4)} p={round(impedanceAnalysis.ttestResults[1]['p'], 4)}"
                 
             else:
                 tTestStr = "Error during calculation"

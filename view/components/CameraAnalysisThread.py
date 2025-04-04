@@ -25,13 +25,11 @@ class CameraAnalysisThread(QThread):
                     print(f"Error: Could not load image {iPath}.")
                     continue
                 else:
-                    self.image_signal.emit(image)
+                    #self.image_signal.emit(image)
                     self.image_path_signal.emit(iPath)
-                    sleep(0.5)
 
                     result = self.cameraAnalysis.add_image(image, iPath, save=(halfway_img==i))
 
                     self.image_signal.emit(result)
-                    sleep(0.5)
             
             self.cameraAnalysis.run_analysis()

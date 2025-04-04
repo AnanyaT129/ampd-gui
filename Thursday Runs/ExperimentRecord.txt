@@ -1,0 +1,33 @@
+o4/03/25 - Experiments
+
+DI Water
+---------------
+20250403_2321 - Trial 1
+20250404_0020 - Trial 2
+20250404_0022 - Trial 3
+20250404_0023 - Trial 4
+20250404_0024 - Trial 5
+
+Tap Water
+-----------
+20250404_0034 - Trial 1
+20250404_0037 - Trial 2
+20250404_0038 - Trial 3
+20250404_0040 - Trial 4
+20250404_0042 - Trial 5 - used as water_data.json for subsequent tests
+
+15 s trials after this point
+
+Sanity test - PLA
+-----------------
+20250404_0049 - Trial 1 (maybe lots of air bubbles)
+20250404_0102 - Trial 2
+
+Double the water volume of PLA sample
+---------------------------------------
+20250404_0117 - Trial 1
+20250404_0121 - Trial 2
+
+New water baseline taken after flushing the system
+---------------------------------------------------
+20250404_0134 - Trial 1
