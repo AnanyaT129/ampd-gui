@@ -18,12 +18,13 @@ class ImpedanceAnalysis:
         self.water_path = water_path
         self.water_imp_low = []
         self.water_imp_high = []
+        self.k_list = []
         self.water_cap = []
 
         self.imp_low_list = []
         self.imp_high_list = []
         self.cap_list = []
-        self.res_list= []
+        self.res_list = []
         self.ppmLow = 0
         self.ppmHigh = 1
         self.estimatedPlasticContent = 500
@@ -43,11 +44,14 @@ class ImpedanceAnalysis:
         # computes and saves impedances for high frequency average
         self.imp_high_list = self.calc_imp(avg_high_list)
 
-        # calculate capacitance
-        self.cap_list = self.calc_cap(self.imp_low_list, self.imp_high_list)
+        # computes constant K
+        self.k_list = self.calc_k(self.imp_low_list, self.imp_high_list)
 
         # calculate resistance
-        self. res_list = self.calc_res(self.imp_high_list, self.cap_list)
+        self.res_list = self.calc_res(self.imp_high_list, self.k_list)
+
+        # calculate capacitance
+        self.cap_list = self.calc_cap(self.k_list, self.res_list)
         
         # run t test on the raw data
         self.run_ttest()
@@ -72,24 +76,30 @@ class ImpedanceAnalysis:
         
         return imp_arr
 
-    def calc_cap(self, imp_low, imp_high):
-        # saves a frequency ratio for future calculations
-        fR = math.sqrt(HIGH_FREQUENCY**2-LOW_FREQUENCY**2) / (2*math.pi*HIGH_FREQUENCY*LOW_FREQUENCY)
+    def calc_k(self, imp_low, imp_high):
+        k_arr = []
+        for i in range(self.numChunks):
+            k_arr.append((imp_low[i]*imp_low[i] - imp_high[i]*imp_high[i]) / \
+                         (2*math.pi*math.sqrt(imp_high[i]*imp_high[i]*HIGH_FREQUENCY*HIGH_FREQUENCY \
+                                              - imp_low[i]*imp_low[i]*LOW_FREQUENCY*LOW_FREQUENCY)))
 
+        return k_arr
+
+    def calc_res(self, imp_high, k):
+        # computes and saves resistances at each time chunk
+        res_arr = []
+        for i in range(self.numChunks):
+            res_arr.append(imp_high[i]*math.sqrt(1+4*math.pi*math.pi*HIGH_FREQUENCY*HIGH_FREQUENCY*k[i]))
+
+        return res_arr
+
+    def calc_cap(self, k, res):
         # computes and saves capacitances at each time chunk
         cap_arr = []
         for i in range(self.numChunks):
-            cap_arr.append(fR / math.sqrt(abs(imp_low[i]**2 - imp_high[i]**2)))
+            cap_arr.append(math.sqrt(k[i]) / res[i])
         
         return cap_arr
-
-    def calc_res(self, imp_high, cap):
-        # computes and saves conductances at each time chunk
-        res_arr = []
-        for i in range(self.numChunks):
-            res_arr.append(math.sqrt(imp_high[i]**2 - (1/4*math.pi*math.pi*self.HIGH_FREQUENCY \ 
-                                                       *self.HIGH_FREQUENCY*cap[i]*self.cap[i])))
-        return res_arr
 
     def get_water_data(self):
         with open(self.water_path, 'r') as file:
