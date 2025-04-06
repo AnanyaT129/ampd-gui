@@ -69,7 +69,7 @@ class ImpedanceAnalysis:
 
     def calc_imp(self, arr):
         # saves the transimpedance amplifier resistance gain times the input voltage
-        rf_vin = 5600*200
+        rf_vin = 5600*204
 
         # computes and saves impedances
         imp_arr = []
