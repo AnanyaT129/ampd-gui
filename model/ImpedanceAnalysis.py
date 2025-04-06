@@ -105,7 +105,7 @@ class ImpedanceAnalysis:
 
     def calc_ppm(self, high):
         avgV = statistics.mean(high)
-        ppm = 1000 *avgV / 2300
+        ppm = 0.4166*avgV
 
         return ppm
 
