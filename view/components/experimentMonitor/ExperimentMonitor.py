@@ -194,8 +194,11 @@ class ExperimentMonitor(QWidget):
 
         time.sleep(0.5)
 
-        self.log(f"Experiment complete. Writing data to {self.experiment.savePath}")
-        self.experiment.write()
+        self.log(f"Experiment complete.")
+        
+        if self.experiment.enable[0]:
+          self.log(f" Writing impedance data to {self.experiment.savePath}")
+          self.experiment.write()
 
         # disable start button, enable stop button
         self.startExperimentButton.setStyleSheet("color: black;")

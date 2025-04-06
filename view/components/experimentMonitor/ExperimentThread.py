@@ -25,7 +25,7 @@ class ExperimentThread(QThread):
             
             if (self.experiment.enable[1]):
                 self.change_status_signal.emit(DeviceStatus.CAPTURING_CAMERA_DATA)
-                self.experiment.camera_capture()
+                self.experiment.mock_camera_capture()
                 self.log_signal.emit(f"Data collected: {len(self.experiment.frames)} frames")
             
             self.stop_experiment_signal.emit(True)
