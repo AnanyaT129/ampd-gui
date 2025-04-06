@@ -16,16 +16,19 @@ class ExperimentThread(QThread):
 
     def run(self):
         if self.action == 'start_data_collection':
+            if (self.experiment.enable[1]):
+                self.change_status_signal.emit(DeviceStatus.CAPTURING_CAMERA_DATA)
+                self.experiment.mock_camera_capture()
+                self.log_signal.emit(f"Data collected: {len(self.experiment.frames)} frames")
+            
+            self.log_signal.emit("Turn pump off. Waiting for 5 seconds")
+            time.sleep(5)
+            
             if (self.experiment.enable[0]):
                 self.change_status_signal.emit(DeviceStatus.CAPTURING_IMPEDANCE_DATA)
                 self.log_signal.emit(f"Collecting impdedance data for {self.experiment.length} seconds")
-                self.experiment.start_data_collection()
+                self.experiment.start_mock_data_collection()
 
                 self.log_signal.emit(f"Data collected: {len(self.experiment.data[0])} low measurements and {len(self.experiment.data[1])} high measurements")
-            
-            if (self.experiment.enable[1]):
-                self.change_status_signal.emit(DeviceStatus.CAPTURING_CAMERA_DATA)
-                self.experiment.camera_capture()
-                self.log_signal.emit(f"Data collected: {len(self.experiment.frames)} frames")
             
             self.stop_experiment_signal.emit(True)

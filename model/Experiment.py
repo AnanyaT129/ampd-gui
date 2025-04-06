@@ -10,7 +10,7 @@ import os
 
 from model.cameracapture import CameraCapture
 from model.constants.PinsAndChannels import ADC, GPIOPins
-from gpiozero import MCP3008, LED
+#from gpiozero import MCP3008, LED
 
 class Experiment():
   def __init__(self):
@@ -30,8 +30,8 @@ class Experiment():
     self.onOffPinHigh = GPIOPins.HIGH_FREQ_ON.value
     
     #comment out if you want to run without pins connected
-    self.tdsLow = LED(self.onOffPinLow)
-    self.tdsHigh = LED(self.onOffPinHigh)
+    #self.tdsLow = LED(self.onOffPinLow)
+    #self.tdsHigh = LED(self.onOffPinHigh)
 
   def addLog(self, newLog):
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')

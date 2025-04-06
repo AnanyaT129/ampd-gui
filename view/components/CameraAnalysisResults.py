@@ -25,14 +25,6 @@ class CameraAnalysisResults(QWidget):
         avgScatteredLayout.addWidget(avgScatteredTitleLabel)
         avgScatteredLayout.addWidget(self.avgScatteredContentLabel)
 
-        estContentLayout = QHBoxLayout()
-        estContentTitleLabel = QLabel("Estimated Microplastic Content: ")
-        estContentTitleLabel.setStyleSheet("font-weight: bold")
-        self.estContentContentLabel = QLabel("")
-
-        estContentLayout.addWidget(estContentTitleLabel)
-        estContentLayout.addWidget(self.estContentContentLabel)
-
         plasticPresentLayout = QHBoxLayout()
         plasticPresentTitleLabel = QLabel("Plastic Present? ")
         plasticPresentTitleLabel.setStyleSheet("font-weight: bold")
@@ -44,7 +36,6 @@ class CameraAnalysisResults(QWidget):
         self.layout = QVBoxLayout()
         self.layout.addWidget(resultsTitle)
         self.layout.addLayout(avgScatteredLayout)
-        self.layout.addLayout(estContentLayout)
         self.layout.addLayout(plasticPresentLayout)
 
         self.setLayout(self.layout)
@@ -52,10 +43,8 @@ class CameraAnalysisResults(QWidget):
     def refresh(self, cameraAnalysis: CameraAnalysis):
         if cameraAnalysis is not None:
             self.avgScatteredContentLabel.setText(str(cameraAnalysis.average_scattered_light))
-            self.estContentContentLabel.setText(str(cameraAnalysis.estimatedPlasticContent))
             self.plasticPresentContentLabel.setText(str(cameraAnalysis.plasticPresent))
 
         else:
             self.avgScatteredContentLabel.setText("")
-            self.estContentContentLabel.setText("")
             self.plasticPresentContentLabel.setText("")

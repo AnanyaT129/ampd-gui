@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import (
   QLabel,
   QWidget,
   QPushButton,
-  QMessageBox,
   QLineEdit,
   QFormLayout,
   QCheckBox
@@ -19,7 +18,7 @@ from model.constants.DeviceStatus import DeviceStatus
 from view.components.experimentMonitor.ExperimentThread import ExperimentThread
 
 class ExperimentMonitor(QWidget):
-  def __init__(self, experiment):
+  def __init__(self, experiment, refreshButton: QPushButton):
     super().__init__()
     self.setAutoFillBackground(True)
     self.experiment = experiment
@@ -37,6 +36,10 @@ class ExperimentMonitor(QWidget):
     # Experiment title label
     labelTitle = QLabel(f"Title: {self.experiment.savePath}")
     labelTitle.setStyleSheet("font-weight: bold")
+
+    # refresh button
+    self.clearButton = refreshButton
+    self.clearButton.setEnabled(False)
 
     # Experiment Variables
     self.variablesFormWidget = QFormLayout()
@@ -84,32 +87,14 @@ class ExperimentMonitor(QWidget):
 
     self.startExperimentButton = QPushButton(self)
     self.startExperimentButton.setText("Start Experiment")
-    self.startExperimentButton.setStyleSheet("color: black;")
     self.startExperimentButton.clicked.connect(self.start_experiment)
-
-    self.stopExperimentButton = QPushButton(self)
-    self.stopExperimentButton.setText("Stop Experiment")
-    self.stopExperimentButton.setEnabled(False)
-    self.stopExperimentButton.setStyleSheet("color: black; background-color: grey")
-    self.stopExperimentButton.clicked.connect(self.stop_experiment)
-
-    # data clear button
-    self.clearButton = QPushButton()
-    self.clearButton.setText("Clear Data")
-    self.clearButton.clicked.connect(self.experiment.clear)
-
-    # data collection layout
-    self.dataCollectionLayout = QHBoxLayout()
-    self.dataCollectionLayout.addWidget(self.startExperimentButton)
-    self.dataCollectionLayout.addWidget(self.stopExperimentButton)
 
     # Layout
     layout = QVBoxLayout()
     layout.addWidget(labelTitle)
     layout.addLayout(self.variablesFormWidget)
     layout.addLayout(statusLayout)
-    layout.addLayout(self.dataCollectionLayout)
-    layout.addWidget(self.clearButton)
+    layout.addWidget(self.startExperimentButton)
     layout.addWidget(self.logsWidget)
     
     self.setLayout(layout)
@@ -166,52 +151,36 @@ class ExperimentMonitor(QWidget):
       self.change_status(DeviceStatus.RUNNING_EXPERIMENT)
 
       # disable start button, enable stop button
-      self.startExperimentButton.setStyleSheet("color: black; background-color: grey")
+      self.startExperimentButton.setStyleSheet("background-color: grey")
       self.startExperimentButton.setEnabled(False)
-      self.stopExperimentButton.setStyleSheet("color: black;")
-      self.stopExperimentButton.setEnabled(True)
 
       self.impedance_thread.log_signal.connect(self.log)
-      self.impedance_thread.stop_experiment_signal.connect(self.stop_experiment_from_thread)
+      self.impedance_thread.stop_experiment_signal.connect(self.stop_experiment)
       self.impedance_thread.change_status_signal.connect(self.change_status)
 
       self.impedance_thread.start()
     else:
       self.log("Cannot change experiment status in current state")
-  
-  def stop_experiment_from_thread(self):
-    self.stop_experiment(confirmationOverride = True)
 
-  def stop_experiment(self, confirmationOverride = False):
+  def stop_experiment(self, stop):
     if (self.status == DeviceStatus.RUNNING_EXPERIMENT or 
         self.status == DeviceStatus.CAPTURING_IMPEDANCE_DATA or 
-        self.status == DeviceStatus.CAPTURING_CAMERA_DATA):
-      if confirmationOverride or self.stopConfirmation():
-        self.log("Experiment Stopped")
-        self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
+        self.status == DeviceStatus.CAPTURING_CAMERA_DATA and
+        stop):
+      self.log("Experiment Stopped")
+      self.change_status(DeviceStatus.READY_TO_START_EXPERIMENT)
 
-        self.impedance_thread.quit()
+      self.impedance_thread.quit()
 
-        time.sleep(0.5)
+      time.sleep(0.5)
 
-        self.log(f"Experiment complete.")
-        
-        if self.experiment.enable[0]:
-          self.log(f" Writing impedance data to {self.experiment.savePath}")
-          self.experiment.write()
+      self.log(f"Experiment complete.")
+      
+      if self.experiment.enable[0]:
+        self.log(f" Writing impedance data to {self.experiment.savePath}")
+        self.experiment.write()
 
-        # disable start button, enable stop button
-        self.startExperimentButton.setStyleSheet("color: black;")
-        self.startExperimentButton.setEnabled(True)
-        self.stopExperimentButton.setStyleSheet("color: black; background-color: grey")
-        self.stopExperimentButton.setEnabled(False)
+      # disable start button, enable stop button
+      self.clearButton.setEnabled(True)
     else:
       self.log("Cannot change experiment status in current state")
-
-  def stopConfirmation(self):
-    reply = QMessageBox.question(self, 'Confirmation',
-                                  "Are you sure you want to stop process?",
-                                  QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                  QMessageBox.StandardButton.No)
-  
-    return reply

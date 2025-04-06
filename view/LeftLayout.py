@@ -8,10 +8,12 @@ from view.components.experimentMonitor.ExperimentMonitor import ExperimentMonito
 from view.components.experimentMonitor.ExperimentMonitor import ExperimentMonitor
 
 class LayoutLeft(QVBoxLayout):
-    def __init__(self, experiment):
+    def __init__(self, experiment, refreshButton):
         super().__init__()
 
         self.experiment = experiment
 
+        self.experimentMonitor = ExperimentMonitor(experiment, refreshButton)
+
         self.addWidget(AmpdTitle())
-        self.addWidget(ExperimentMonitor(experiment))
+        self.addWidget(self.experimentMonitor)

@@ -4,3 +4,4 @@ firebaseAuthURL.py
 */__pycache__/
 *.py[cod]
 *.pyc
+.DS_Store
