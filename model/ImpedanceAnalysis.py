@@ -134,14 +134,14 @@ class ImpedanceAnalysis:
         sample_high = self.calc_imp(self.high)
 
         # step 1: check that data is normal
-        _, p_1 = stats.shapiro(water_low)
-        _, p_2 = stats.shapiro(water_high)
-        _, p_3 = stats.shapiro(sample_low)
-        _, p_4 = stats.shapiro(sample_high)
+        # _, p_1 = stats.shapiro(water_low)
+        # _, p_2 = stats.shapiro(water_high)
+        # _, p_3 = stats.shapiro(sample_low)
+        # _, p_4 = stats.shapiro(sample_high)
 
-        if not ((p_1 < 0.05) and (p_2 < 0.05) and (p_3 < 0.05) and (p_4 < 0.05)):
-            self.ttestResults = None
-            return
+        # if not ((p_1 < 0.05) and (p_2 < 0.05) and (p_3 < 0.05) and (p_4 < 0.05)):
+        #     self.ttestResults = None
+        #     return
         
         # step 2: check for equal variance:
         _, p_b_low = stats.bartlett(water_low, sample_low)
@@ -177,7 +177,7 @@ class ImpedanceAnalysis:
                 "metadata": {
                     "numChunks": self.numChunks,
                     "lowFreq": LOW_FREQUENCY,
-                    "highFreq": HIGH_FREQUENCY
+                    "highFreq": HIGH_FREQUENCY,
                 },
                 "analysisResults": {
                     "impLow": self.imp_low_list,

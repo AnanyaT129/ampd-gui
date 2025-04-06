@@ -17,29 +17,13 @@ class ImpedanceAnalysisResults(QWidget):
         metadataTitle = QLabel("Results")
         metadataTitle.setStyleSheet("font-weight: bold")
 
-        ppmLowLayout = QHBoxLayout()
-        ppmLowTitleLabel = QLabel("PPM from Low Freq.: ")
-        ppmLowTitleLabel.setStyleSheet("font-weight: bold")
-        self.ppmLowContentLabel = QLabel("")
+        ppmLayout = QHBoxLayout()
+        ppmTitleLabel = QLabel("Estimated TDS PPM: ")
+        ppmTitleLabel.setStyleSheet("font-weight: bold")
+        self.ppmContentLabel = QLabel("")
 
-        ppmLowLayout.addWidget(ppmLowTitleLabel)
-        ppmLowLayout.addWidget(self.ppmLowContentLabel)
-
-        ppmHighLayout = QHBoxLayout()
-        ppmHighTitleLabel = QLabel("PPM from High Freq.: ")
-        ppmHighTitleLabel.setStyleSheet("font-weight: bold")
-        self.ppmHighContentLabel = QLabel("")
-
-        ppmHighLayout.addWidget(ppmHighTitleLabel)
-        ppmHighLayout.addWidget(self.ppmHighContentLabel)
-
-        estContentLayout = QHBoxLayout()
-        estContentTitleLabel = QLabel("Estimated Microplastic Content: ")
-        estContentTitleLabel.setStyleSheet("font-weight: bold")
-        self.estContentContentLabel = QLabel("")
-
-        estContentLayout.addWidget(estContentTitleLabel)
-        estContentLayout.addWidget(self.estContentContentLabel)
+        ppmLayout.addWidget(ppmTitleLabel)
+        ppmLayout.addWidget(self.ppmContentLabel)
 
         tTesttLayout = QVBoxLayout()
         tTestTitleLabel = QLabel("T Test against Water Control: ")
@@ -63,9 +47,7 @@ class ImpedanceAnalysisResults(QWidget):
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(metadataTitle)
-        self.layout.addLayout(ppmLowLayout)
-        self.layout.addLayout(ppmHighLayout)
-        self.layout.addLayout(estContentLayout)
+        self.layout.addLayout(ppmLayout)
         self.layout.addLayout(tTesttLayout)
         self.layout.addLayout(plasticPresentLayout)
 
@@ -75,9 +57,7 @@ class ImpedanceAnalysisResults(QWidget):
     
     def refresh(self, impedanceAnalysis: ImpedanceAnalysis):
         if impedanceAnalysis is not None:
-            self.ppmLowContentLabel.setText(str(impedanceAnalysis.ppmLow))
-            self.ppmHighContentLabel.setText(str(impedanceAnalysis.ppmHigh))
-            self.estContentContentLabel.setText(str(impedanceAnalysis.estimatedPlasticContent))
+            self.ppmContentLabel.setText(str(impedanceAnalysis.ppm))
             if impedanceAnalysis.ttestResults is not None:
                 tTestStr = f"Low: t={round(impedanceAnalysis.ttestResults[0]['t'], 4)} p={round(impedanceAnalysis.ttestResults[0]['p'], 4)}, High: t={round(impedanceAnalysis.ttestResults[1]['t'], 4)} p={round(impedanceAnalysis.ttestResults[1]['p'], 4)}"
                 
@@ -87,8 +67,6 @@ class ImpedanceAnalysisResults(QWidget):
             self.plasticPresentContentLabel.setText(str(impedanceAnalysis.plasticPresent))
 
         else:
-            self.ppmLowContentLabel.setText("")
-            self.ppmHighContentLabel.setText("")
-            self.estContentContentLabel.setText("")
+            self.ppmContentLabel.setText("")
             self.tTestContentLabel.setText("")
             self.plasticPresentContentLabel.setText("")

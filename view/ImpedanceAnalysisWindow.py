@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (QWidget,
                              QLabel,
                              QFormLayout,
                              QLineEdit)
-from PyQt6.QtGui import QIntValidator
+from PyQt6.QtGui import QIntValidator, QDoubleValidator
 import pyqtgraph as pg
 import numpy as np
 
@@ -37,6 +37,9 @@ class ImpedanceAnalysisWindow(QWidget):
         self.numChunksWidget.textChanged.connect(self.numChunksChanged)
         self.variablesFormWidget.addRow("Number of data chunks: ", self.numChunksWidget)
 
+        self.uploadCalibrationFileButton = QPushButton("Upload Calibration File", clicked=self.uploadCalibrationFile)
+        self.labelCalibrationFile = QLabel(f"Calibration File: ")
+
         self.metadata = ImpedanceAnalysisMetadata()
 
         self.runAnalysisButton = QPushButton("Run Analysis", clicked=self.runAnalysis)
@@ -50,6 +53,8 @@ class ImpedanceAnalysisWindow(QWidget):
         uploadLayout.addWidget(self.uploadDataFileButton)
         uploadLayout.addWidget(self.labelDataFile)
         uploadLayout.addLayout(self.variablesFormWidget)
+        uploadLayout.addWidget(self.uploadCalibrationFileButton)
+        uploadLayout.addWidget(self.labelCalibrationFile)
         uploadLayout.addWidget(self.metadata)
         uploadLayout.addWidget(self.runAnalysisButton)
         uploadLayout.addWidget(self.results)
@@ -85,7 +90,7 @@ class ImpedanceAnalysisWindow(QWidget):
     
     def numChunksChanged(self, numChunks):
         if self.impedanceAnalysis is not None:
-            self.impedanceAnalysis.numChunks = numChunks
+            self.impedanceAnalysis.numChunks = int(numChunks)
         
         self.metadata.refresh(self.impedanceAnalysis)
 
@@ -115,14 +120,33 @@ class ImpedanceAnalysisWindow(QWidget):
         self.labelDataFile.setText(f"Data from: {file_label}")
 
         self.impedanceAnalysis = ImpedanceAnalysis(self.date, self.data.low_impedance, self.data.high_impedance)
+        self.labelCalibrationFile.setText(f"Calibration from: {self.impedanceAnalysis.water_path}")
 
         self.metadata.refresh(self.impedanceAnalysis)
+    
+    def uploadCalibrationFile(self):
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)  # Allow selecting only existing files
+        file_dialog.setNameFilter("JSON Files (*.json)")
+        if file_dialog.exec():  # If the dialog is accepted
+            file_paths = file_dialog.selectedFiles()[0]
+        parser = Parser()
+        parser.parse_json(file_paths)
+
+        self.impedanceAnalysis.water_path = file_paths
+        file_label = ''.join(file_paths.split('/')[-2])
+
+        self.labelCalibrationFile.setText(f"Calibration from: ...{file_label}")
     
     def runAnalysis(self):
         if (self.data is None):
             print("No data to analyze")
         else:
+            self.runAnalysisButton.setText("Running Analysis")
+            self.runAnalysisButton.setEnabled(False)
             self.impedanceAnalysis.run()
+            self.runAnalysisButton.setText("Analysis Done")
+            self.runAnalysisButton.setEnabled(True)
 
             self.results.refresh(self.impedanceAnalysis)
 
