@@ -10,6 +10,7 @@ class Camera:
         self.width = None
         self.height = None
         self.fps = None
+        self.exposure = None
 
     def open(self):
         self.cap = cv2.VideoCapture(self.index, self.selector)
@@ -34,7 +35,8 @@ class Camera:
         self.cap.set(cv2.CAP_PROP_FOCUS, val)
         
     def set_exposure(self, val):
-        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+        self.exposure = val
+        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
         self.cap.set(cv2.CAP_PROP_EXPOSURE, val)
 
     def read(self):

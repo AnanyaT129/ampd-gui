@@ -12,12 +12,13 @@ selector_list = [
 ]
 
 class CameraCapture():
-	def __init__(self, fps=30, width=1600, height=1200, view_window=[1280, 720], index=0, focus=False, reStartTimes=5, videoCaptureAPI=0, exposure=-6):
+	def __init__(self, fps=30, width=1600, height=1200, view_window=[1280, 720], index=0, focus=800, reStartTimes=5, videoCaptureAPI=0, exposure=-7):
 		self.width = width
 		self.height = height
 		self.view_window = view_window
 		self.index = index
 		self.fps = fps
+		self.exposure = exposure
 		self.focus = focus
 		self.restart_times = reStartTimes
 		self.selector = selector_list[videoCaptureAPI]
@@ -26,7 +27,6 @@ class CameraCapture():
 		self.cap.set_width(self.width)
 		self.cap.set_height(self.height)
 		self.cap.set_fps(self.fps)
-		self.cap.set_exposure(self.exposure)
 		
 		self.data = []
 	
@@ -36,6 +36,10 @@ class CameraCapture():
 		if not self.cap.isOpened():
 			print("Can't open camera")
 			exit()
+		
+		self.cap.set_exposure(self.exposure)
+		if self.focus is not False:
+			self.cap.set_exposure(self.focus)
 	
 	def read_frame(self):
 		ret, frame = self.cap.read()

@@ -184,7 +184,6 @@ class ImpedanceAnalysis:
                     "impHigh": self.imp_high_list,
                     "capacitance": self.cap_list,
                     "ppm": self.ppm,
-                    "estPlasticContent": self.estimatedPlasticContent,
                     "plasticPresent": str(self.plasticPresent),
                     "ttestResults": ttestResults
                 }
