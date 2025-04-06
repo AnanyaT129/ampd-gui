@@ -25,8 +25,7 @@ class ImpedanceAnalysis:
         self.imp_high_list = []
         self.cap_list = []
         self.res_list = []
-        self.ppmLow = 0
-        self.ppmHigh = 1
+        self.ppm = 0
         self.estimatedPlasticContent = 500
         self.plasticPresent = False
         self.ttestResults = None
@@ -52,6 +51,9 @@ class ImpedanceAnalysis:
 
         # calculate capacitance
         self.cap_list = self.calc_cap(self.k_list, self.res_list)
+
+        # calculate ppm
+        self.ppm = self.calc_ppm(self.high)
         
         # run t test on the raw data
         self.run_ttest()
@@ -79,9 +81,9 @@ class ImpedanceAnalysis:
     def calc_k(self, imp_low, imp_high):
         k_arr = []
         for i in range(self.numChunks):
-            k_arr.append((imp_low[i]*imp_low[i] - imp_high[i]*imp_high[i]) / \
-                         (2*math.pi*math.sqrt(imp_high[i]*imp_high[i]*HIGH_FREQUENCY*HIGH_FREQUENCY \
-                                              - imp_low[i]*imp_low[i]*LOW_FREQUENCY*LOW_FREQUENCY)))
+            k_arr.append((abs(imp_low[i]*imp_low[i] - imp_high[i]*imp_high[i])) / \
+                         (2*math.pi*math.sqrt(abs(imp_high[i]*imp_high[i]*HIGH_FREQUENCY*HIGH_FREQUENCY \
+                                              - imp_low[i]*imp_low[i]*LOW_FREQUENCY*LOW_FREQUENCY))))
 
         return k_arr
 
@@ -100,6 +102,12 @@ class ImpedanceAnalysis:
             cap_arr.append(math.sqrt(k[i]) / res[i])
         
         return cap_arr
+
+    def calc_ppm(self, high):
+        avgV = statistics.mean(high)
+        ppm = 1000 *avgV / 2300
+
+        return ppm
 
     def get_water_data(self):
         with open(self.water_path, 'r') as file:
@@ -175,8 +183,7 @@ class ImpedanceAnalysis:
                     "impLow": self.imp_low_list,
                     "impHigh": self.imp_high_list,
                     "capacitance": self.cap_list,
-                    "ppmLow": self.ppmLow,
-                    "ppmHigh": self.ppmHigh,
+                    "ppm": self.ppm,
                     "estPlasticContent": self.estimatedPlasticContent,
                     "plasticPresent": str(self.plasticPresent),
                     "ttestResults": ttestResults
