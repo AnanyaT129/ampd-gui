@@ -32,6 +32,10 @@ class Camera:
 
     def set_focus(self, val):
         self.cap.set(cv2.CAP_PROP_FOCUS, val)
+        
+    def set_exposure(self, val):
+        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+        self.cap.set(cv2.CAP_PROP_EXPOSURE, val)
 
     def read(self):
         return self.cap.read()
