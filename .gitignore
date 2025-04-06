@@ -1,3 +1,6 @@
 firebaseKey.json
 firebaseAuthURL.py
 /*ampd_experiment_data*
+*/__pycache__/
+*.py[cod]
+*.pyc
