@@ -96,10 +96,10 @@ class ImpedanceAnalysis:
         return res_arr
 
     def calc_cap(self, k, res):
-        # computes and saves capacitances at each time chunk
+        # computes and saves capacitances in nF at each time chunk
         cap_arr = []
         for i in range(self.numChunks):
-            cap_arr.append(math.sqrt(k[i]) / res[i])
+            cap_arr.append(1000000000*math.sqrt(k[i]) / res[i])
         
         return cap_arr
 
