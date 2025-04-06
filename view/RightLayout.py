@@ -71,16 +71,13 @@ class RightLayout(QVBoxLayout):
         self.plot_widget.plot(x_data_high, y_data_high, pen='b', symbol='o', symbolBrush='g')
     
     def impedance_analysis(self):
-        if self.impedanceAnalysisWindow is None:
-            self.impedanceAnalysisWindow = ImpedanceAnalysisWindow()
+        self.impedanceAnalysisWindow = ImpedanceAnalysisWindow()
         self.impedanceAnalysisWindow.show()
     
     def camera_analysis(self):
-        if self.cameraAnalysisWindow is None:
-            self.cameraAnalysisWindow = CameraAnalysisWindow(CameraAnalysis())
+        self.cameraAnalysisWindow = CameraAnalysisWindow(CameraAnalysis())
         self.cameraAnalysisWindow.show()
     
     def upload(self):
-        if self.uploadWindow is None:
-            self.uploadWindow = UploadWindow()
+        self.uploadWindow = UploadWindow()
         self.uploadWindow.show()
