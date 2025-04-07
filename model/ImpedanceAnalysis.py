@@ -25,6 +25,7 @@ class ImpedanceAnalysis:
         self.imp_high_list = []
         self.cap_list = []
         self.res_list = []
+        self.cond_list = []
         self.ppm = 0
         self.estimatedPlasticContent = 500
         self.plasticPresent = False
@@ -48,6 +49,9 @@ class ImpedanceAnalysis:
 
         # calculate resistance
         self.res_list = self.calc_res(self.imp_high_list, self.k_list)
+
+        # calculates conductance
+        self.cond_list = self.calc_cond(self.res_list)
 
         # calculate capacitance
         self.cap_list = self.calc_cap(self.k_list, self.res_list)
@@ -94,6 +98,14 @@ class ImpedanceAnalysis:
             res_arr.append(imp_high[i]*math.sqrt(1+4*math.pi*math.pi*HIGH_FREQUENCY*HIGH_FREQUENCY*k[i]))
 
         return res_arr
+
+    def calc_cond(self, res):
+        # computes and saves conductance at each time chunk
+        cond_arr = []
+        for i in range(self.numChunks):
+            cond_arr.append(2691.79 / res[i])
+
+        return cond_arr
 
     def calc_cap(self, k, res):
         # computes and saves capacitances in nF at each time chunk
