@@ -64,13 +64,13 @@ class ImpedanceAnalysisWindow(QWidget):
         self.capacitance_widget = pg.PlotWidget()
 
         # Set up plot parameters
-        self.impedance_widget.setTitle("Impedance Data")
+        self.impedance_widget.setTitle("Impedance Data (ohms)")
         self.impedance_widget.setLabel("left", "Value")
         self.impedance_widget.setLabel("bottom", "Time", units="s")
         self.impedance_widget.setYRange(5000, 15000)
 
         # Set up plot parameters
-        self.capacitance_widget.setTitle("Capacitance Data")
+        self.capacitance_widget.setTitle("Capacitance Data (nF)")
         self.capacitance_widget.setLabel("left", "Value")
         self.capacitance_widget.setLabel("bottom", "Time", units="s")
         self.capacitance_widget.setYRange(0, 20)
