@@ -24,9 +24,6 @@ class CameraAnalysis:
         #image = self.detect_scattering(image)
         image = self.mock_detect_scattering(image)
 
-        if save:
-            self.img_to_save = image
-
         return image
 
     def run_analysis(self):
@@ -49,6 +46,7 @@ class CameraAnalysis:
                     "estParticles": self.estParticles,
                     "averageScatteredLight": self.average_scattered_light,
                     "plasticPresent": str(self.plasticPresent),
+                    "imgToSave": str(self.img_to_save)
                 }
             }
         
@@ -71,6 +69,8 @@ class CameraAnalysis:
         self.scattered_light.append(total_area)
         self.estParticles.append(particle_count)
 
+        self.img_to_save = self.imgs[self.scattered_light.index(max(self.scattered_light))]
+
         return img_with_contours
 
     def mock_detect_scattering(self, image):
@@ -86,6 +86,8 @@ class CameraAnalysis:
 
         self.scattered_light.append(np.random.randint(0, 10))
         self.estParticles.append(np.random.randint(0, 10))
+
+        self.img_to_save = self.imgs[self.scattered_light.index(max(self.scattered_light))]
 
         return image
     

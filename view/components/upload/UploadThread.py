@@ -2,7 +2,8 @@ from enum import Enum
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 import requests
 import firebase_admin
-from firebase_admin import credentials, firestore, auth
+from firebase_admin import credentials, firestore, auth, storage
+import os
 
 from firebaseAuthURL import FIREBASE_AUTH_URL
 
@@ -48,6 +49,13 @@ class UploadThread(QThread):
                         decoded_token = auth.verify_id_token(idToken)
                         uid = decoded_token['uid']  # User's UID
 
+                        img_path = self.data.get('cameraAnalysis').get('analysisResults').get('imgToSave')
+                        if img_path and os.path.exists(img_path):
+                            image_url = self.upload_image_to_storage(img_path)
+                            self.data['cameraAnalysis']['analysisResults']['imgToSave'] = image_url
+                        else:
+                            print(img_path)
+
                         doc_ref = db.collection(uid).document(self.title)
 
                         doc_ref.set(self.data)
@@ -86,4 +94,20 @@ class UploadThread(QThread):
         except Exception as e:
             print(f"Error authenticating user: {e}")
             self.change_status_signal.emit(UploadStatus.AUTH_ERROR)
+            return None
+    
+    def upload_image_to_storage(self, img_path):
+        try:
+            bucket = storage.bucket()
+            blob = bucket.blob(os.path.basename(img_path))
+
+            blob.upload_from_filename(img_path)
+
+            # Make the file publically accessible (optional, you can control access as needed)
+            blob.make_public()
+
+            return blob.public_url
+        except Exception as e:
+            print(f"Error uploading image: {e}")
+            self.change_status_signal.emit(UploadStatus.UPLOAD_ERROR)
             return None
