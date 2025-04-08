@@ -49,10 +49,12 @@ class UploadThread(QThread):
                         decoded_token = auth.verify_id_token(idToken)
                         uid = decoded_token['uid']  # User's UID
 
-                        img_path = self.data.get('cameraAnalysis').get('analysisResults').get('imgToSave')
+                        img_path = self.data.get('cameraAnalysis')[0].get('analysisResults').get('imgToSave')
                         if img_path and os.path.exists(img_path):
                             image_url = self.upload_image_to_storage(img_path)
-                            self.data['cameraAnalysis']['analysisResults']['imgToSave'] = image_url
+                            self.data['cameraAnalysis'][0]['analysisResults']['imgToSave'] = image_url
+                            
+                            
                         else:
                             print(img_path)
 
@@ -98,7 +100,7 @@ class UploadThread(QThread):
     
     def upload_image_to_storage(self, img_path):
         try:
-            bucket = storage.bucket()
+            bucket = storage.bucket("ampd-neu.firebasestorage.app")
             blob = bucket.blob(os.path.basename(img_path))
 
             blob.upload_from_filename(img_path)

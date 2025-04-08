@@ -35,7 +35,7 @@ class CameraAnalysis:
         filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
 
         with open(f'{savePath}/cameraAnalysis.json', 'a') as f:
-            dataDict = {
+            dataDict = [{
                 "metadata": {
                     "fps": self.fps,
                     "duration": self.duration,
@@ -48,7 +48,7 @@ class CameraAnalysis:
                     "plasticPresent": str(self.plasticPresent),
                     "imgToSave": str(self.img_to_save)
                 }
-            }
+            }]
         
             json.dump(dataDict, f, ensure_ascii=False, indent=4)
             f.write("\n")
