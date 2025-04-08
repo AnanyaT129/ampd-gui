@@ -22,7 +22,7 @@ class CameraAnalysis:
         self.imgs.append(path_to_img)
 
         #image = self.detect_scattering(image)
-        image = self.mock_detect_scattering(image)
+        image = self.detect_scattering(image)
 
         return image
 

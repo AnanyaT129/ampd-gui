@@ -31,5 +31,7 @@ class CameraAnalysisThread(QThread):
                     result = self.cameraAnalysis.add_image(image, iPath, save=(halfway_img==i))
 
                     self.image_signal.emit(result)
+                
+                sleep(1)
             
             self.cameraAnalysis.run_analysis()

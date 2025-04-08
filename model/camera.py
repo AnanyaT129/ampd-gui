@@ -36,7 +36,7 @@ class Camera:
         
     def set_exposure(self, val):
         self.exposure = val
-        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25)
+        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
         self.cap.set(cv2.CAP_PROP_EXPOSURE, val)
 
     def read(self):

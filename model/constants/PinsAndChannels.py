@@ -7,3 +7,4 @@ class ADC(Enum):
 class GPIOPins(Enum):
     LOW_FREQ_ON = 23
     HIGH_FREQ_ON = 25
+    RELAY_PIN = 17

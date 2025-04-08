@@ -10,7 +10,7 @@ import os
 
 from model.cameracapture import CameraCapture
 from model.constants.PinsAndChannels import ADC, GPIOPins
-#from gpiozero import MCP3008, LED
+from gpiozero import MCP3008, LED
 
 class Experiment():
   def __init__(self):
@@ -30,8 +30,9 @@ class Experiment():
     self.onOffPinHigh = GPIOPins.HIGH_FREQ_ON.value
     
     #comment out if you want to run without pins connected
-    #self.tdsLow = LED(self.onOffPinLow)
-    #self.tdsHigh = LED(self.onOffPinHigh)
+    self.tdsLow = LED(self.onOffPinLow)
+    self.tdsHigh = LED(self.onOffPinHigh)
+    self.relay = LED(GPIOPins.RELAY_PIN.value)
 
   def addLog(self, newLog):
     time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -76,6 +77,7 @@ class Experiment():
     print(f"Saved frames to {self.savePath}/frames")
   
   def start_data_collection(self):
+    self.relay.off()
     dLow = []
     dHigh = []
     
@@ -120,6 +122,9 @@ class Experiment():
       self.data = [dLow, dHigh]
   
   def camera_capture(self):
+    self.relay.on()
+    sleep(30)
+    
     camera_capture = CameraCapture(self.cameraFps)
 
     camera_capture.collect_data(self.cameraLength)
@@ -138,6 +143,10 @@ class Experiment():
       print(r)
 
     print(f"Saved frames to {self.savePath}/frames")
+    
+    camera_capture.close_camera()
+    
+    self.relay.off()
 
   def clear(self):
     self.data = []
@@ -170,3 +179,8 @@ class Experiment():
       return self.data
     else:
       return [[],[]]
+  
+  def close(self):
+    self.tdsLow.close()
+    self.tdsHigh.close()
+    self.relay.close()
