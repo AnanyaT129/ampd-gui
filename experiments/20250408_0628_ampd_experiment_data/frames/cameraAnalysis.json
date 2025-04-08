@@ -1,0 +1,49 @@
+[
+    {
+        "metadata": {
+            "fps": 30,
+            "duration": 1
+        },
+        "analysisResults": {
+            "scatteredLight": [
+                2383.0,
+                5675.5,
+                6466.5,
+                -50,
+                -50,
+                -50,
+                -50,
+                -50,
+                -50,
+                -50
+            ],
+            "imgPaths": [
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/0_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/1_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/2_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/3_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/4_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/5_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/6_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/7_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/8_of_10.png",
+                "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/9_of_10.png"
+            ],
+            "estParticles": [
+                1,
+                4,
+                4,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "averageScatteredLight": 1417.5,
+            "plasticPresent": "False",
+            "imgToSave": "/home/ampd/ampd-gui/20250408_0628_ampd_experiment_data/frames/2_of_10.png"
+        }
+    }
+]
