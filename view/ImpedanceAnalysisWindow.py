@@ -175,7 +175,7 @@ class ImpedanceAnalysisWindow(QWidget):
         self.impedance_widget.plot(x_data_high, imp_high, pen='b', symbol='o', symbolBrush='g', name="High Frequency")
         self.impedance_widget.plot(x_data_water_low, water_low, pen='b', symbol='o', symbolBrush='b', name="Base Low Frequency")
         self.impedance_widget.plot(x_data_water_high, water_high, pen='b', symbol='o', symbolBrush='w', name="Base High Frequency")
-
+        self.impedance_widget.enableAutoRange(axis='xy', enable=True)
 
     def graph_capacitance_data(self, length, cap_list, water_cap):
         # Extract X (time) and Y (value) for plotting
@@ -187,6 +187,7 @@ class ImpedanceAnalysisWindow(QWidget):
         self.capacitance_widget.addLegend()
         self.capacitance_widget.plot(x_data, cap_list, pen='b', symbol='o', symbolBrush='b', name="Capacitance")
         self.capacitance_widget.plot(x_data_water, water_cap, pen='b', symbol='o', symbolBrush='w', name="Base Capacitance")
+        self.capacitance_widget.enableAutoRange(axis='xy', enable=True)
 
     def stopConfirmation(self):
         reply = QMessageBox.question(self, 'Save Analysis',

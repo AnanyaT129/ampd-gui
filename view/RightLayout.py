@@ -70,6 +70,7 @@ class RightLayout(QVBoxLayout):
         self.plot_widget.clear()
         self.plot_widget.plot(x_data_low, y_data_low, pen='b', symbol='o', symbolBrush='r', name="Low Frequency")
         self.plot_widget.plot(x_data_high, y_data_high, pen='b', symbol='o', symbolBrush='g', name="High Frequency")
+        self.plot_widget.enableAutoRange(axis='xy', enable=True)
     
     def impedance_analysis(self):
         self.impedanceAnalysisWindow = ImpedanceAnalysisWindow()
