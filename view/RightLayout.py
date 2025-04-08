@@ -23,6 +23,7 @@ class RightLayout(QVBoxLayout):
 
         # Create and set up pyqtgraph plot widget
         self.plot_widget = pg.PlotWidget()
+        self.plot_widget.addLegend()
         self.addWidget(self.plot_widget)
 
         # Set up plot parameters
@@ -67,8 +68,8 @@ class RightLayout(QVBoxLayout):
 
         # Update the plot with new data
         self.plot_widget.clear()
-        self.plot_widget.plot(x_data_low, y_data_low, pen='b', symbol='o', symbolBrush='r')
-        self.plot_widget.plot(x_data_high, y_data_high, pen='b', symbol='o', symbolBrush='g')
+        self.plot_widget.plot(x_data_low, y_data_low, pen='b', symbol='o', symbolBrush='r', name="Low Frequency")
+        self.plot_widget.plot(x_data_high, y_data_high, pen='b', symbol='o', symbolBrush='g', name="High Frequency")
     
     def impedance_analysis(self):
         self.impedanceAnalysisWindow = ImpedanceAnalysisWindow()

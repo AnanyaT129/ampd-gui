@@ -61,7 +61,9 @@ class ImpedanceAnalysisWindow(QWidget):
 
         # Create and set up pyqtgraph plot widget
         self.impedance_widget = pg.PlotWidget()
+        self.impedance_widget.addLegend()
         self.capacitance_widget = pg.PlotWidget()
+        self.capacitance_widget.addLegend()
 
         # Set up plot parameters
         self.impedance_widget.setTitle("Impedance Data (ohms)")
@@ -168,10 +170,11 @@ class ImpedanceAnalysisWindow(QWidget):
 
         # Update the plot with new data
         self.impedance_widget.clear()
-        self.impedance_widget.plot(x_data_low, imp_low, pen='b', symbol='o', symbolBrush='r')
-        self.impedance_widget.plot(x_data_high, imp_high, pen='b', symbol='o', symbolBrush='g')
-        self.impedance_widget.plot(x_data_water_low, water_low, pen='b', symbol='o', symbolBrush='w')
-        self.impedance_widget.plot(x_data_water_high, water_high, pen='b', symbol='o', symbolBrush='w')
+        self.impedance_widget.addLegend()
+        self.impedance_widget.plot(x_data_low, imp_low, pen='b', symbol='o', symbolBrush='r', name="Low Frequency")
+        self.impedance_widget.plot(x_data_high, imp_high, pen='b', symbol='o', symbolBrush='g', name="High Frequency")
+        self.impedance_widget.plot(x_data_water_low, water_low, pen='b', symbol='o', symbolBrush='b', name="Base Low Frequency")
+        self.impedance_widget.plot(x_data_water_high, water_high, pen='b', symbol='o', symbolBrush='w', name="Base High Frequency")
 
 
     def graph_capacitance_data(self, length, cap_list, water_cap):
@@ -181,8 +184,9 @@ class ImpedanceAnalysisWindow(QWidget):
 
         # Update the plot with new data
         self.capacitance_widget.clear()
-        self.capacitance_widget.plot(x_data, cap_list, pen='b', symbol='o', symbolBrush='b')
-        self.capacitance_widget.plot(x_data_water, water_cap, pen='b', symbol='o', symbolBrush='w')
+        self.capacitance_widget.addLegend()
+        self.capacitance_widget.plot(x_data, cap_list, pen='b', symbol='o', symbolBrush='b', name="Capacitance")
+        self.capacitance_widget.plot(x_data_water, water_cap, pen='b', symbol='o', symbolBrush='w', name="Base Capacitance")
 
     def stopConfirmation(self):
         reply = QMessageBox.question(self, 'Save Analysis',
