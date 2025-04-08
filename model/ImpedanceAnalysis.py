@@ -18,11 +18,12 @@ class ImpedanceAnalysis:
         self.water_path = water_path
         self.water_imp_low = []
         self.water_imp_high = []
-        self.k_list = []
         self.water_cap = []
+        self.water_cond = []
 
         self.imp_low_list = []
         self.imp_high_list = []
+        self.k_list = []
         self.cap_list = []
         self.res_list = []
         self.cond_list = []
@@ -103,7 +104,7 @@ class ImpedanceAnalysis:
         # computes and saves conductance at each time chunk
         cond_arr = []
         for i in range(self.numChunks):
-            cond_arr.append(2691.79 / res[i])
+            cond_arr.append(3149606.299 / res[i])
 
         return cond_arr
 
@@ -136,6 +137,7 @@ class ImpedanceAnalysis:
         self.water_imp_low = self.calc_imp(avg_low_list)
         self.water_imp_high = self.calc_imp(avg_high_list)
         self.water_cap = self.calc_cap(self.water_imp_low, self.water_imp_high)
+        self.water_cond = self.calc_cond(self.res_list)
 
         return [water_low, water_high]
 

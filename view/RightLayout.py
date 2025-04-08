@@ -27,7 +27,7 @@ class RightLayout(QVBoxLayout):
         self.addWidget(self.plot_widget)
 
         # Set up plot parameters
-        self.plot_widget.setTitle("Real-Time Data")
+        self.plot_widget.setTitle("Real-Time Data (mV)")
         self.plot_widget.setLabel("left", "Value")
         self.plot_widget.setLabel("bottom", "Time", units="s")
         self.plot_widget.setYRange(0, 3300)
