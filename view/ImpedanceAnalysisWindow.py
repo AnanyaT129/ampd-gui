@@ -65,6 +65,7 @@ class ImpedanceAnalysisWindow(QWidget):
         self.capacitance_widget = pg.PlotWidget()
         self.capacitance_widget.addLegend()
         self.conductance_widget = pg.PlotWidget()
+        self.conductance_widget.addLegend()
 
         # Set up plot parameters
         self.impedance_widget.setTitle("Impedance Data (ohms)")
@@ -208,8 +209,10 @@ class ImpedanceAnalysisWindow(QWidget):
 
         # Update the plot with new data
         self.conductance_widget.clear()
+        self.conductance_widget.addLegend()
         self.conductance.plot(x_data, cond_list, pen='b', symbol='o', symbolBrush='b')
         self.conductance_widget.plot(x_data_water, water_cond, pen='b', symbol='o', symbolBrush='w')
+        self.conductance_widget.enableAutoRange(axis='xy', enable=True)
 
     def stopConfirmation(self):
         reply = QMessageBox.question(self, 'Save Analysis',
