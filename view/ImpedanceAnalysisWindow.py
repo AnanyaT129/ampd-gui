@@ -172,7 +172,7 @@ class ImpedanceAnalysisWindow(QWidget):
             '''
 
             self.graph_capacitance_data(duration, self.impedanceAnalysis.cap_list, self.impedanceAnalysis.water_cap)
-            self.graph_conductance_data(self, self.impedanceAnalysis.cond_list, self.impedanceAnalysis.water_cond)
+            self.graph_conductance_data(duration, self.impedanceAnalysis.cond_list, self.impedanceAnalysis.water_cond)
 
     def graph_impedance_data(self, length, imp_low: list, imp_high: list, water_low, water_high):
         # Extract X (time) and Y (value) for plotting
